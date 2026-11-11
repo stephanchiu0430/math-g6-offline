@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Math Pitch — Grade 6 (Taiwan 六年級)</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0B3D2E">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Math Pitch">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;800&family=Barlow:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ice:#EEF7F0;--ice2:#FFFFFF;--ink:#0B3D2E;--ink2:#466B5A;--blue:#1E8449;--red:#D7263D;--gold:#E9A826;--green:#1F9E6B;--line:#C5DCCD;
+  color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]){--ice:#071F15;--ice2:#0F2E22;--ink:#E8F5EC;--ink2:#9FC4AF;--blue:#3FBF72;--red:#F0506A;--gold:#F2B33D;--green:#3CC489;--line:#1F4A38;color-scheme:dark}}
+:root[data-theme="dark"]{--ice:#071F15;--ice2:#0F2E22;--ink:#E8F5EC;--ink2:#9FC4AF;--blue:#3FBF72;--red:#F0506A;--gold:#F2B33D;--green:#3CC489;--line:#1F4A38;color-scheme:dark}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{background:var(--ice);color:var(--ink);font-family:"Barlow",system-ui,-apple-system,sans-serif;font-size:17px;line-height:1.45;display:flex;flex-direction:column}
+.disp{font-family:"Barlow Condensed","Barlow",system-ui,sans-serif;font-weight:800;letter-spacing:.01em}
+button{font:inherit;color:inherit;cursor:pointer;border:0;background:none;padding:0}
+button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid var(--gold);outline-offset:2px}
+input,select{font:inherit;color:var(--ink);background:var(--ice2);border:2px solid var(--line);border-radius:8px;padding:8px 10px;width:100%}
+
+/* scoreboard */
+.board{background:var(--ink);color:#fff;padding:12px 14px 10px;display:grid;grid-template-columns:repeat(4,1fr);gap:6px;position:sticky;top:env(safe-area-inset-top,0px);z-index:5}
+:root[data-theme="dark"] .board{background:#04150E}
+@media (prefers-color-scheme: dark){:root:not([data-theme="light"]) .board{background:#04150E}}
+body::before{content:"";position:fixed;inset:0 0 auto;height:env(safe-area-inset-top,0px);z-index:10;background:var(--ink)}
+.cell{text-align:center}
+.cell .n{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:34px;line-height:1;color:var(--gold);font-variant-numeric:tabular-nums}
+.cell .n.red{color:#FF5C70}.cell .n.white{color:#fff}
+.cell .l{font-size:12px;opacity:.75;margin-top:2px}
+
+main{flex:1;max-width:620px;width:100%;margin:0 auto;padding:16px 16px 90px}
+h1,h2,h3{font-family:"Barlow Condensed",sans-serif;font-weight:800;line-height:1.05;margin:0}
+h1{font-size:40px}h2{font-size:28px}h3{font-size:22px}
+p{margin:.4em 0}
+.muted{color:var(--ink2)}
+.rink{border-top:4px solid var(--red);padding-top:12px;margin-top:22px}
+.blueline{border-top:3px solid var(--blue);padding-top:10px;margin-top:16px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:var(--blue);color:#fff;border-radius:10px;padding:14px 18px;font-weight:600;font-size:18px;width:100%}
+.btn.red{background:var(--red)}.btn.gold{background:var(--gold);color:#1a1200}.btn.ghost{background:transparent;border:2px solid var(--line);color:var(--ink)}
+.btn.sm{width:auto;padding:8px 14px;font-size:15px}
+.btn:disabled{opacity:.45;cursor:default}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+
+/* tabs */
+nav.tabs{position:fixed;left:0;right:0;bottom:0;background:var(--ice2);border-top:2px solid var(--line);display:flex;z-index:5;padding-bottom:env(safe-area-inset-bottom,0px)}
+nav.tabs button{flex:1;padding:12px 4px 10px;font-size:13px;color:var(--ink2);display:flex;flex-direction:column;align-items:center;gap:2px}
+nav.tabs button .ic{font-size:20px}
+nav.tabs button.on{color:var(--blue);font-weight:600}
+
+/* cards */
+.wcard{background:var(--ice2);border:2px solid var(--line);border-radius:14px;padding:18px}
+.word{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:44px;line-height:1}
+.pos{color:var(--ink2);font-style:italic;margin-left:6px;font-size:16px}
+.sent{margin-top:14px;font-size:19px}
+.sent b{color:var(--blue)}
+.zh{color:var(--ink2)}
+.opts{display:grid;gap:10px;margin-top:14px}
+.opt{text-align:left;background:var(--ice2);border:2px solid var(--line);border-radius:10px;padding:14px;font-size:18px;display:flex;gap:10px;align-items:center}
+.opt .k{font-family:"Barlow Condensed",sans-serif;font-weight:800;color:var(--ink2);width:22px}
+.opt.ok{border-color:var(--green);background:color-mix(in srgb,var(--green) 14%,var(--ice2))}
+.opt.bad{border-color:var(--red);background:color-mix(in srgb,var(--red) 12%,var(--ice2))}
+.opt:disabled{cursor:default}
+.prog{height:8px;background:var(--line);border-radius:4px;overflow:hidden;margin:6px 0 14px}
+.prog i{display:block;height:100%;background:var(--blue);transition:width .25s}
+.fb{margin-top:12px;padding:12px;border-radius:10px;background:var(--ice2);border-left:5px solid var(--green)}
+.fb.bad{border-left-color:var(--red)}
+.xp-pop{position:fixed;left:50%;top:40%;transform:translateX(-50%);font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:46px;color:var(--gold);pointer-events:none;animation:pop .9s ease-out forwards;z-index:20;text-shadow:0 2px 0 rgba(0,0,0,.25)}
+@keyframes pop{0%{opacity:0;transform:translate(-50%,10px)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-50px)}}
+@media (prefers-reduced-motion:reduce){.xp-pop{animation:none;opacity:0}.prog i{transition:none}}
+
+.stat{display:flex;justify-content:space-between;padding:10px 0;border-bottom:1px solid var(--line)}
+.stat .v{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:24px}
+.boxes{display:flex;gap:4px;align-items:flex-end;height:70px;margin:10px 0}
+.boxes div{flex:1;background:var(--blue);border-radius:4px 4px 0 0;min-height:3px;position:relative}
+.boxes div span{position:absolute;top:-20px;left:0;right:0;text-align:center;font-size:12px;color:var(--ink2)}
+.boxes div.m{background:var(--green)}
+.blab{display:flex;gap:4px;font-size:11px;color:var(--ink2)}.blab span{flex:1;text-align:center}
+.badges{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-top:8px}
+.badge{border:2px solid var(--line);border-radius:10px;padding:10px;font-size:14px}
+.badge.got{border-color:var(--gold);background:color-mix(in srgb,var(--gold) 14%,var(--ice2))}
+.badge .e{font-size:22px}
+.wl{display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--line);text-align:left;width:100%}
+.pill{font-size:12px;padding:2px 8px;border-radius:99px;border:1.5px solid var(--line);color:var(--ink2);white-space:nowrap}
+.pill.b4,.pill.b5{border-color:var(--green);color:var(--green)}.pill.due{border-color:var(--red);color:var(--red)}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:10px 0}
+.chip{border:2px solid var(--line);border-radius:99px;padding:6px 12px;font-size:14px}.chip.on{background:var(--blue);color:#fff;border-color:var(--blue)}
+.phase{display:grid;grid-template-columns:70px 1fr;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.phase .w{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:20px;color:var(--blue)}
+.phase.now .w{color:var(--red)}
+.lvl{display:flex;align-items:center;gap:12px}
+.lvl .ring{width:64px;height:64px;border-radius:50%;background:conic-gradient(var(--gold) var(--p),var(--line) 0);display:grid;place-items:center}
+.lvl .ring i{width:50px;height:50px;border-radius:50%;background:var(--ice2);display:grid;place-items:center;font-style:normal;font-size:26px}
+.modal{position:fixed;inset:0;background:rgba(5,15,30,.6);display:grid;place-items:center;z-index:30;padding:20px}
+.modal>div{background:var(--ice2);border-radius:14px;padding:22px;max-width:420px;width:100%}
+.hidden{display:none}
+.kb{font-size:13px;color:var(--ink2);margin-top:6px}
+.timer{font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:40px;color:var(--red)}
+label.f{display:block;margin:12px 0 4px;font-weight:600;font-size:15px}
+.tog{display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid var(--line)}
+.sw{width:48px;height:28px;border-radius:14px;background:var(--line);position:relative}.sw.on{background:var(--green)}
+.sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}.sw.on::after{left:23px}
+.spk{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--ice2);font-size:16px;vertical-align:middle;margin-left:8px;flex:none}.spk:active{background:var(--line)}.spk.big{width:42px;height:42px;font-size:20px}
+.note{font-size:14px;color:var(--ink2);border:1.5px dashed var(--line);border-radius:10px;padding:10px;margin-top:10px}
+.qtext{white-space:pre-line;font-size:21px;line-height:1.45;margin:0;font-variant-numeric:tabular-nums}
+.wcard.q{padding:20px 16px}
+.ans{margin:12px auto 8px;max-width:280px;text-align:center;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:40px;border-bottom:4px solid var(--blue);min-height:54px}
+.ans.ok{border-color:var(--green);color:var(--green)}.ans.bad{border-color:var(--red);color:var(--red)}
+.kp{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;max-width:380px;margin:0 auto}
+.key{background:var(--ice2);border:2px solid var(--line);border-radius:12px;padding:13px 0;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:26px;touch-action:manipulation}
+.key.op{color:var(--blue)}.key.w2{grid-column:span 2}.key:active{background:var(--line)}
+.btn.go{max-width:380px;display:flex;margin:10px auto 0}
+.hint{background:color-mix(in srgb,var(--gold) 16%,var(--ice2));border-left:5px solid var(--gold);border-radius:8px;padding:10px 12px;font-size:16px}
+.ex{margin-top:14px;padding:12px;border:1.5px dashed var(--line);border-radius:10px}
+.unit{display:block;width:100%;text-align:left;padding:12px 0;border-bottom:1px solid var(--line)}
+.bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden;display:flex;margin-top:6px}.bar i{display:block;height:100%;background:var(--green)}.bar i.s{background:color-mix(in srgb,var(--blue) 40%,var(--line))}
+.fb{white-space:pre-line}
+</style>
+</head>
+<body>
+<header class="board" aria-label="Scoreboard">
+  <div class="cell"><div class="n" id="sbStreak">0</div><div class="l">day streak</div></div>
+  <div class="cell"><div class="n white" id="sbXP">0</div><div class="l">XP</div></div>
+  <div class="cell"><div class="n red" id="sbDue">0</div><div class="l">due today</div></div>
+  <div class="cell"><div class="n white" id="sbM">0</div><div class="l">mastered</div></div>
+</header>
+<main id="main"></main>
+<nav class="tabs" aria-label="Sections">
+  <button data-t="today" class="on"><span class="ic">⚽</span>Today</button>
+  <button data-t="skills"><span class="ic">📘</span>Skills</button>
+  <button data-t="plan"><span class="ic">📅</span>Plan</button>
+  <button data-t="stats"><span class="ic">🏆</span>Stats</button>
+  <button data-t="settings"><span class="ic">⚙️</span>Setup</button>
+</nav>
+<div id="modal" class="modal hidden"></div>
+<script>
+// ===== Math Pitch skill bank: Taiwan 108-curriculum Grade 6 (六年級) + Grade 5 foundations =====
+const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
+const pick=a=>a[Math.floor(Math.random()*a.length)];
+const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1};
+const lcm=(a,b)=>a/gcd(a,b)*b;
+function F(n,d=1){if(d<0){n=-n;d=-d}const g=gcd(n,d);return{n:n/g,d:d/g}}
+const neg=n=>n<0?"−"+(-n):String(n);
+// rational -> string: integer, terminating decimal, or fraction
+function dec(f){if(typeof f==="number")f={n:f,d:1};let d=f.d;while(d%2===0)d/=2;while(d%5===0)d/=5;if(d!==1)return null;
+  let k=0,m=f.d;while(m!==1){if(m%10===0){m/=10}else if(m%2===0){m/=2}else{m/=5}k++}
+  return neg(+(f.n/f.d).toFixed(Math.min(k,6)))}
+function fs(f){if(typeof f==="number")return neg(f);return f.d===1?neg(f.n):neg(f.n)+"/"+f.d}
+function ds(f){const r=dec(f);return r===null?fs(f):r}           // prefer decimal when it terminates
+const fr=(n,d)=>`${n}/${d}`;
+const red=(n,d)=>{const f=F(n,d);return f.n===n&&f.d===d?fr(n,d):fr(n,d)+" = "+fs(f)};
+const D=(x,k)=>(x/10**k).toFixed(k);                                  // integer -> decimal string
+const TH=()=>{const t=(typeof S!=="undefined"&&S.theme)||"mix";return t==="mix"?pick(["soccer","minecraft"]):t};
+
+const UNITS=[
+ ["f5","Grade 5 foundations","五年級先備","五年級"],
+ ["fac","Factors and multiples","質因數、公因數與公倍數","六上"],
+ ["div","Dividing fractions and decimals","分數與小數除法","六上"],
+ ["ratio","Ratios","比與比值","六上"],
+ ["circle","Circles","圓周長與圓面積","六上"],
+ ["prop","Proportion and scale","正比與比例尺","六下"],
+ ["speed","Speed","速率","六下"],
+ ["solid","Prisms and cylinders","柱體體積與表面積","六下"],
+ ["alg","Letters for numbers","用文字符號表示數","六下"],
+ ["data","Circle graphs","圓形圖","六下"]];
+
+const SKILLS=[
+// ---------- Grade 5 foundations ----------
+{k:"f5:fadd",u:"f5",name:"Adding and subtracting fractions",idea:"Use a common denominator first: a/b + c/d = (ad + bc) / bd, then simplify.",gen(){
+  let b,d;do{b=rnd(2,12);d=rnd(2,12)}while(b===d);const a=rnd(1,b-1),c=rnd(1,d-1);
+  const plus=Math.random()<.5||a*d<=c*b;const L=lcm(b,d);
+  if(plus){const ans=F(a*d+c*b,b*d);return{text:`${fr(a,b)} + ${fr(c,d)} = ?`,ans,sol:`${fr(a*L/b,L)} + ${fr(c*L/d,L)} = ${red(a*L/b+c*L/d,L)}`}}
+  const ans=F(a*d-c*b,b*d);return{text:`${fr(a,b)} − ${fr(c,d)} = ?`,ans,sol:`${fr(a*L/b,L)} − ${fr(c*L/d,L)} = ${red(a*L/b-c*L/d,L)}`}}},
+{k:"f5:fmul",u:"f5",name:"Multiplying fractions",idea:"Multiply tops and bottoms: a/b × c/d = ac / bd. Cancel common factors first to keep numbers small.",gen(){
+  const b=rnd(2,9),d=rnd(2,9),a=rnd(1,9),c=rnd(1,9);const ans=F(a*c,b*d);
+  return{text:`${fr(a,b)} × ${fr(c,d)} = ?`,ans,sol:`${a}×${c} ⁄ ${b}×${d} = ${red(a*c,b*d)}`}}},
+{k:"f5:dmul",u:"f5",name:"Multiplying decimals",idea:"Multiply as whole numbers, then count the decimal places in both numbers.",gen(){
+  const x=rnd(11,99),kx=rnd(1,2),y=rnd(2,25),ky=rnd(0,1);const ans=F(x*y,10**(kx+ky));
+  return{text:`${D(x,kx)} × ${D(y,ky)} = ?`,ans,sol:`${x} × ${y} = ${x*y}; ${kx+ky} decimal place${kx+ky>1?"s":""} → ${ds(ans)}`}}},
+{k:"f5:pct",u:"f5",name:"Percentages",idea:"p% of N = N × p / 100.",gen(){
+  const N=rnd(2,20)*20,p=rnd(1,19)*5;const ans=F(N*p,100);
+  return{text:`What is ${p}% of ${N}?`,ans,sol:`${N} × ${p} ⁄ 100 = ${ds(ans)}`}}},
+{k:"f5:order",u:"f5",name:"Order of operations",idea:"Brackets first, then × and ÷ from left to right, then + and − from left to right.",gen(){
+  const e=rnd(2,6),q=rnd(2,9),c=rnd(2,9),d=rnd(1,c-1)||1;const b=e*q;const a=rnd(5,40);
+  if(Math.random()<.5){return{text:`${a} + ${b} ÷ ${e} × ${c} = ?`,ans:a+q*c,sol:`${b} ÷ ${e} = ${q}; ${q} × ${c} = ${q*c}; ${a} + ${q*c} = ${a+q*c}`}}
+  const v=(c+d)*e,z=a%v||1;return{text:`(${c} + ${d}) × ${e} − ${z} = ?`,ans:v-z,sol:`(${c+d}) × ${e} = ${v}; ${v} − ${z} = ${v-z}`}}},
+{k:"f5:area",u:"f5",name:"Areas of triangles and trapezoids",idea:"Triangle = base × height ÷ 2.  Trapezoid = (top + bottom) × height ÷ 2.",gen(){
+  if(Math.random()<.5){const b=rnd(3,20),h=rnd(2,15);return{text:`A triangle has base ${b} cm and height ${h} cm. What is its area in cm²?`,ans:F(b*h,2),sol:`${b} × ${h} ÷ 2 = ${ds(F(b*h,2))}`}}
+  const a=rnd(2,12),b=rnd(a+1,20),h=rnd(2,12);return{text:`A trapezoid has parallel sides ${a} cm and ${b} cm and height ${h} cm. What is its area in cm²?`,ans:F((a+b)*h,2),sol:`(${a} + ${b}) × ${h} ÷ 2 = ${ds(F((a+b)*h,2))}`}}},
+// ---------- 質因數、公因數與公倍數 ----------
+{k:"fac:prime",u:"fac",name:"Prime factorization",idea:"Keep dividing by the smallest prime (2, 3, 5, 7, …) until only primes are left. 60 = 2 × 2 × 3 × 5.",gen(){
+  const ps=[2,2,3,3,5,7,11,13];const fs_=Array.from({length:rnd(3,4)},()=>pick(ps)).sort((a,b)=>a-b);const N=fs_.reduce((a,b)=>a*b,1);
+  if(Math.random()<.5)return{text:`What is the largest prime factor of ${N}?`,ans:fs_[fs_.length-1],sol:`${N} = ${fs_.join(" × ")}`};
+  return{text:`Write ${N} as a product of primes. How many prime factors are there, counting repeats? (Example: 12 = 2 × 2 × 3 has 3.)`,ans:fs_.length,sol:`${N} = ${fs_.join(" × ")} → ${fs_.length}`}}},
+{k:"fac:gcd",u:"fac",name:"Greatest common factor",idea:"The GCF is the product of the prime factors both numbers share.",gen(){
+  const g=rnd(2,12);let x,y;do{x=rnd(2,9);y=rnd(2,9)}while(gcd(x,y)!==1||x===y);
+  return{text:`What is the greatest common factor of ${g*x} and ${g*y}?`,ans:g,sol:`${g*x} = ${g} × ${x}, ${g*y} = ${g} × ${y}; ${x} and ${y} share no factor → ${g}`}}},
+{k:"fac:lcm",u:"fac",name:"Least common multiple",idea:"LCM(a, b) = a × b ÷ GCF(a, b).",gen(){
+  let a,b;do{a=rnd(3,18);b=rnd(3,18)}while(a===b||lcm(a,b)>200);
+  return{text:`What is the least common multiple of ${a} and ${b}?`,ans:lcm(a,b),sol:`GCF = ${gcd(a,b)}; ${a} × ${b} ÷ ${gcd(a,b)} = ${lcm(a,b)}`}}},
+{k:"fac:lcmw",u:"fac",name:"Common multiple word problems",idea:"'When will both happen together again?' is asking for the LCM.",gen(){
+  let a,b;do{a=rnd(3,15);b=rnd(3,15)}while(a===b||lcm(a,b)===a*b&&a*b>120||lcm(a,b)>150);
+  const t=TH();const text=t==="soccer"?`Team A trains every ${a} days and Team B every ${b} days. Both trained today. In how many days will they next train on the same day?`:`One farm is harvested every ${a} minutes and another every ${b} minutes. Both were harvested just now. After how many minutes are both harvested together again?`;
+  return{text,ans:lcm(a,b),sol:`LCM(${a}, ${b}) = ${lcm(a,b)}`}}},
+// ---------- 分數與小數除法 ----------
+{k:"div:frac",u:"div",name:"Dividing fractions",idea:"Dividing by a fraction = multiplying by its reciprocal: a/b ÷ c/d = a/b × d/c.",gen(){
+  const b=rnd(2,9),d=rnd(2,9),a=rnd(1,12),c=rnd(1,9);const ans=F(a*d,b*c);
+  return{text:`${fr(a,b)} ÷ ${fr(c,d)} = ?  (write the answer as a fraction or whole number)`,ans,sol:`${fr(a,b)} × ${fr(d,c)} = ${red(a*d,b*c)}`}}},
+{k:"div:fword",u:"div",name:"Fraction division word problems",idea:"'How many pieces of size p fit into L?' means L ÷ p.",gen(){
+  const pd=rnd(2,6),pn=rnd(1,pd-1)||1,k=rnd(3,12);const L=F(pn*k,pd);const t=TH();
+  const text=t==="soccer"?`A training run is ${fs(L)} km. One lap of the field is ${fr(pn,pd)} km. How many laps is the run?`:`A cauldron holds ${fs(L)} liters of potion. Each bottle holds ${fr(pn,pd)} liter. How many bottles can be filled?`;
+  return{text,ans:k,sol:`${fs(L)} ÷ ${fr(pn,pd)} = ${fs(L)} × ${fr(pd,pn)} = ${k}`}}},
+{k:"div:dec",u:"div",name:"Dividing decimals",idea:"Move the decimal point in both numbers the same number of places until the divisor is a whole number.",gen(){
+  const y=rnd(2,25),ky=rnd(1,2),q=rnd(2,40),kq=rnd(0,1);const x=y*q;const ans=F(q,10**kq);
+  return{text:`${D(x,ky+kq)} ÷ ${D(y,ky)} = ?`,ans,sol:`Move both decimal points ${ky} place${ky>1?"s":""}: ${D(x,kq)} ÷ ${y} = ${ds(ans)}`}}},
+// ---------- 比與比值 ----------
+{k:"ratio:value",u:"ratio",name:"Ratio value",idea:"The ratio value of a : b is a ÷ b. Equivalent ratios have the same value.",gen(){
+  const g=rnd(1,6);let a,b;do{a=rnd(1,12);b=rnd(1,12)}while(a===b);const ans=F(a,b);
+  return{text:`What is the ratio value of ${a*g} : ${b*g}?`,ans,sol:`${a*g} ÷ ${b*g} = ${fs(ans)}`}}},
+{k:"ratio:eq",u:"ratio",name:"Missing term in equal ratios",idea:"If a : b = c : x, multiply both terms of a : b by the same number.",gen(){
+  let a,b;do{a=rnd(1,9);b=rnd(1,9)}while(a===b);const m=rnd(2,9);
+  if(Math.random()<.5)return{text:`${a} : ${b} = ${a*m} : x.  x = ?`,ans:b*m,sol:`${a} × ${m} = ${a*m}, so x = ${b} × ${m} = ${b*m}`};
+  return{text:`${a*m} : ${b*m} = x : ${b}.  x = ?`,ans:a,sol:`${b*m} ÷ ${m} = ${b}, so x = ${a*m} ÷ ${m} = ${a}`}}},
+{k:"ratio:split",u:"ratio",name:"Sharing in a ratio",idea:"For a ratio a : b, the total has a + b equal parts. One part = total ÷ (a + b).",gen(){
+  let a,b;do{a=rnd(1,7);b=rnd(1,7)}while(a===b);const u=rnd(2,12),T=(a+b)*u;const t=TH();
+  const text=t==="soccer"?`Two teams scored ${T} goals in total, in the ratio ${a} : ${b}. How many goals did the higher-scoring team score?`:`${T} emeralds are shared between two players in the ratio ${a} : ${b}. How many does the player with more get?`;
+  return{text,ans:Math.max(a,b)*u,sol:`${a} + ${b} = ${a+b} parts; one part = ${T} ÷ ${a+b} = ${u}; ${Math.max(a,b)} × ${u} = ${Math.max(a,b)*u}`}}},
+// ---------- 圓 ----------
+{k:"circle:c",u:"circle",name:"Circumference",idea:"Circumference = diameter × π. Use π = 3.14.",gen(){
+  const r=rnd(1,15);if(Math.random()<.5)return{text:`A circle has radius ${r} cm. What is its circumference in cm? (π = 3.14)`,ans:F(628*r,100),sol:`${2*r} × 3.14 = ${ds(F(628*r,100))}`};
+  const d=rnd(2,30);return{text:`A circle has diameter ${d} cm. What is its circumference in cm? (π = 3.14)`,ans:F(314*d,100),sol:`${d} × 3.14 = ${ds(F(314*d,100))}`}}},
+{k:"circle:a",u:"circle",name:"Area of a circle",idea:"Area = radius × radius × π. Use π = 3.14.",gen(){
+  const r=rnd(1,12);if(Math.random()<.6)return{text:`A circle has radius ${r} cm. What is its area in cm²? (π = 3.14)`,ans:F(314*r*r,100),sol:`${r} × ${r} × 3.14 = ${ds(F(314*r*r,100))}`};
+  const d=rnd(1,10)*2;const rr=d/2;return{text:`A circle has diameter ${d} cm. What is its area in cm²? (π = 3.14)`,ans:F(314*rr*rr,100),sol:`radius ${rr}; ${rr} × ${rr} × 3.14 = ${ds(F(314*rr*rr,100))}`}}},
+{k:"circle:semi",u:"circle",name:"Semicircles and quarter circles",idea:"A semicircle's perimeter is half the circumference plus the diameter. A quarter circle's area is ¼ of the circle's area.",gen(){
+  const r=rnd(2,12);if(Math.random()<.5){const ans=F(314*r+200*r,100);return{text:`A semicircle has radius ${r} cm. What is its perimeter in cm (curved edge plus straight edge)? (π = 3.14)`,ans,sol:`${2*r} × 3.14 ÷ 2 + ${2*r} = ${ds(F(314*r,100))} + ${2*r} = ${ds(ans)}`}}
+  const ans=F(314*r*r,400);return{text:`A quarter circle has radius ${r} cm. What is its area in cm²? (π = 3.14)`,ans,sol:`${r} × ${r} × 3.14 ÷ 4 = ${ds(ans)}`}}},
+// ---------- 正比與比例尺 ----------
+{k:"prop:scale",u:"prop",name:"Map scale",idea:"Scale 1 : N means 1 cm on the map is N cm in real life. 100 cm = 1 m, 100,000 cm = 1 km.",gen(){
+  if(Math.random()<.5){const N=pick([1000,2000,5000,10000]),c=rnd(2,15);const m=c*N/100;return{text:`A map has scale 1 : ${N.toLocaleString("en-US")}. Two places are ${c} cm apart on the map. How many meters apart are they really?`,ans:m,sol:`${c} × ${N.toLocaleString("en-US")} = ${(c*N).toLocaleString("en-US")} cm = ${m} m`}}
+  const N=pick([100000,200000,500000]),c=rnd(2,12);const km=c*N/100000;return{text:`A map has scale 1 : ${N.toLocaleString("en-US")}. Two towns are ${c} cm apart on the map. How many kilometers apart are they really?`,ans:km,sol:`${c} × ${N.toLocaleString("en-US")} = ${(c*N).toLocaleString("en-US")} cm = ${km} km`}}},
+{k:"prop:direct",u:"prop",name:"Direct proportion",idea:"If y is directly proportional to x, y ÷ x stays the same. Find the value for 1, then multiply.",gen(){
+  const k=rnd(2,15),x1=rnd(2,9),x2=rnd(2,20);const t=TH();
+  const text=t==="soccer"?`${x1} soccer balls cost $${k*x1}. At the same price, how much do ${x2} balls cost (in $)?`:`${x1} chests hold ${k*x1} items. At the same rate, how many items do ${x2} chests hold?`;
+  return{text,ans:k*x2,sol:`One costs/holds ${k*x1} ÷ ${x1} = ${k}; ${k} × ${x2} = ${k*x2}`}}},
+// ---------- 速率 ----------
+{k:"speed:v",u:"speed",name:"Speed = distance ÷ time",idea:"Speed = distance ÷ time. Keep the units: km and hours give km per hour.",gen(){
+  const t=TH();if(t==="minecraft"){const v=rnd(4,12),s=rnd(5,30);return{text:`A minecart travels ${v*s} blocks in ${s} seconds. What is its speed in blocks per second?`,ans:v,sol:`${v*s} ÷ ${s} = ${v}`}}
+  const v=pick([6,8,10,12,15,18,20,24,30]),m=pick([10,15,20,30,40,45]);const d=F(v*m,60);return{text:`A player cycles to practice at a steady speed and covers ${ds(d)} km in ${m} minutes. What is the speed in km per hour?`,ans:v,sol:`${m} minutes = ${ds(F(m,60))} hour; ${ds(d)} ÷ ${ds(F(m,60))} = ${v} km/h`}}},
+{k:"speed:conv",u:"speed",name:"Converting speed units",idea:"1 km = 1,000 m and 1 hour = 60 minutes. So km/h × 1000 ÷ 60 = m/min.",gen(){
+  if(Math.random()<.5){const v=rnd(1,10)*6;return{text:`${v} km per hour = how many meters per minute?`,ans:v*1000/60,sol:`${v} × 1000 ÷ 60 = ${v*1000/60}`}}
+  const m=rnd(1,15)*50;const ans=F(m*60,1000);return{text:`${m} meters per minute = how many km per hour?`,ans,sol:`${m} × 60 ÷ 1000 = ${ds(ans)}`}}},
+{k:"speed:dt",u:"speed",name:"Distance and time",idea:"Distance = speed × time.  Time = distance ÷ speed.",gen(){
+  const v=rnd(3,20)*5,h=rnd(1,4),half=Math.random()<.5;const tt=half?h+0.5:h;
+  if(Math.random()<.5)return{text:`A bus travels at ${v} km per hour for ${half?h+" hours 30 minutes":h+" hours"}. How many km does it travel?`,ans:F(v*(2*h+(half?1:0)),2),sol:`${v} × ${tt} = ${ds(F(v*(2*h+(half?1:0)),2))}`};
+  return{text:`A bus travels ${v*h} km at ${v} km per hour. How many hours does it take?`,ans:h,sol:`${v*h} ÷ ${v} = ${h}`}}},
+// ---------- 柱體 ----------
+{k:"solid:prism",u:"solid",name:"Volume of prisms",idea:"Volume of any prism = area of the base × height.",gen(){
+  const b=rnd(2,12),h=rnd(2,10),H=rnd(2,15);if(Math.random()<.5){const ans=F(b*h*H,2);return{text:`A prism has a triangular base with base ${b} cm and height ${h} cm. The prism is ${H} cm tall. What is its volume in cm³?`,ans,sol:`Base area ${b} × ${h} ÷ 2 = ${ds(F(b*h,2))}; × ${H} = ${ds(ans)}`}}
+  const a=rnd(2,12),c=rnd(2,12);return{text:`A box is ${a} cm long, ${c} cm wide and ${H} cm tall. What is its volume in cm³?`,ans:a*c*H,sol:`${a} × ${c} × ${H} = ${a*c*H}`}}},
+{k:"solid:cyl",u:"solid",name:"Volume of cylinders",idea:"Cylinder volume = radius × radius × π × height. Use π = 3.14.",gen(){
+  const r=rnd(1,10),h=rnd(2,20);const ans=F(314*r*r*h,100);return{text:`A cylinder has radius ${r} cm and height ${h} cm. What is its volume in cm³? (π = 3.14)`,ans,sol:`${r} × ${r} × 3.14 × ${h} = ${ds(ans)}`}}},
+{k:"solid:surf",u:"solid",name:"Surface area of boxes",idea:"A box has 3 pairs of matching faces: surface area = 2 × (lw + lh + wh).",gen(){
+  if(Math.random()<.4){const a=rnd(2,15);return{text:`A cube has edges of ${a} cm. What is its surface area in cm²?`,ans:6*a*a,sol:`6 × ${a} × ${a} = ${6*a*a}`}}
+  const l=rnd(2,15),w=rnd(2,12),h=rnd(2,10);const ans=2*(l*w+l*h+w*h);return{text:`A box is ${l} cm × ${w} cm × ${h} cm. What is its surface area in cm²?`,ans,sol:`2 × (${l*w} + ${l*h} + ${w*h}) = ${ans}`}}},
+// ---------- 用文字符號表示數 ----------
+{k:"alg:solve",u:"alg",name:"Finding the unknown",idea:"Undo the operation: + ↔ −, × ↔ ÷. If x × 6 = 42, then x = 42 ÷ 6.",gen(){
+  const x=rnd(2,40),a=rnd(2,25),t=rnd(0,3);
+  if(t===0)return{text:`x + ${a} = ${x+a}.  x = ?`,ans:x,sol:`x = ${x+a} − ${a} = ${x}`};
+  if(t===1)return{text:`x − ${a} = ${x}.  x = ?`.replace(`= ${x}.`,`= ${x}.`).replace(`x − ${a} = ${x}.`,`x − ${a} = ${x}.`),ans:x+a,sol:`x = ${x} + ${a} = ${x+a}`};
+  const m=rnd(2,12);if(t===2)return{text:`${m} × x = ${m*x}.  x = ?`,ans:x,sol:`x = ${m*x} ÷ ${m} = ${x}`};
+  return{text:`x ÷ ${m} = ${x}.  x = ?`,ans:m*x,sol:`x = ${x} × ${m} = ${m*x}`}}},
+{k:"alg:sub",u:"alg",name:"Evaluating expressions",idea:"Put the number in place of the letter, then follow the order of operations.",gen(){
+  const x=rnd(2,12),a=rnd(2,9),b=rnd(1,30);if(Math.random()<.5)return{text:`If x = ${x}, what is ${a} × x + ${b}?`,ans:a*x+b,sol:`${a} × ${x} + ${b} = ${a*x+b}`};
+  const c=rnd(1,x-1)||1;return{text:`If x = ${x}, what is (x − ${c}) × ${a}?`,ans:(x-c)*a,sol:`(${x} − ${c}) × ${a} = ${(x-c)*a}`}}},
+{k:"alg:write",u:"alg",name:"Writing and solving from words",idea:"Write the story as an equation with x, then solve it.",gen(){
+  const t=TH(),per=rnd(2,9),x=rnd(3,15),extra=rnd(1,20);const tot=per*x+extra;
+  const text=t==="soccer"?`A coach buys some balls at $${per} each and one pump for $${extra}. The total is $${tot}. How many balls did the coach buy?`:`You craft some torches using ${per} sticks each, and keep ${extra} sticks left over. You started with ${tot} sticks. How many torches did you craft?`;
+  return{text,ans:x,sol:`${per} × x + ${extra} = ${tot} → ${per} × x = ${tot-extra} → x = ${x}`}}},
+// ---------- 圓形圖 ----------
+{k:"data:pie",u:"data",name:"Circle graphs",idea:"A whole circle is 100% and 360°. p% of the circle is 360 × p ÷ 100 degrees.",gen(){
+  const p=pick([5,10,15,20,25,30,35,40,45,50,60,75]);if(Math.random()<.5){const N=rnd(2,15)*20;const ans=F(N*p,100);return{text:`In a survey of ${N} students, ${p}% chose soccer as their favorite sport. How many students is that?`,ans,sol:`${N} × ${p} ⁄ 100 = ${ds(ans)}`}}
+  return{text:`In a circle graph, a section is ${p}% of the whole. How many degrees is its angle?`,ans:F(360*p,100),sol:`360 × ${p} ⁄ 100 = ${ds(F(360*p,100))}`}}},
+];
+const IDX={};SKILLS.forEach((s,i)=>IDX[s.k]=i);
+
+// ===== Math Pitch — Taiwan Grade 6 math practice with spaced repetition =====
+const APP_VERSION="2026-11-10a";
+const KEY="mathpitch-v1";
+const DAY=86400000;
+const INTERVALS=[0,1,3,7,14,30];
+const LEVELS=[[0,"Rookie","🧢"],[250,"Academy","⚽"],[600,"Starter","👟"],[1200,"Playmaker","⭐"],[2200,"Captain","🅲"],[3600,"Golden Boot","🥇"],[5500,"Legend","🏆"]];
+const BADGES=[
+ ["first","First match","⚽","Finish your first session"],
+ ["checked","Scouted","🔍","Finish a unit check"],
+ ["s7","7-day streak","🔥","Study 7 days in a row"],
+ ["s21","21-day streak","🌋","Study 21 days in a row"],
+ ["sem1","六上 covered","🧱","Every Grade 5 and 六上 skill learned"],
+ ["sem2","六下 covered","💎","Every 六下 skill learned"],
+ ["m20","20 mastered","🥅","Master 20 skills"],
+ ["perfect","Perfect session","⭐","A session with zero mistakes (8+ questions)"],
+];
+
+// ---------- state ----------
+const todayKey=d=>{d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
+const fresh=()=>({v:1,name:"",goal:"2027-06-30",perDay:2,xp:0,streak:0,best:0,last:"",freezeUsed:"",badges:[],w:{},hist:{},check:{},reportUrl:"",pending:false,theme:"mix",updated:0});
+let S=fresh();
+function load(){try{const j=localStorage.getItem(KEY);if(j)S=Object.assign(fresh(),JSON.parse(j))}catch(e){}}
+function save(){S.updated=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
+const ws=k=>S.w[k]||{b:0,d:0,l:0,c:0};
+const mastered=k=>(S.w[k]||{}).b>=4;
+const learned=k=>(S.w[k]||{}).b>=1;
+function dueList(){const now=Date.now();return SKILLS.map(s=>s.k).filter(k=>ws(k).b>0&&ws(k).d<=now)}
+function unseen(){return SKILLS.filter(s=>ws(s.k).b===0).map(s=>s.k)}
+function masteredCount(){return SKILLS.filter(s=>mastered(s.k)).length}
+function grade(k,ok){const x=ws(k);if(ok){x.b=Math.min(5,x.b+1);x.c++}else{x.b=1;x.l++}x.d=Date.now()+INTERVALS[x.b]*DAY;S.w[k]=x}
+function weekKey(){const d=new Date();const o=new Date(d.getFullYear(),0,1);return d.getFullYear()+"w"+Math.floor(((d-o)/DAY+o.getDay())/7)}
+function touchStreak(){const t=todayKey();if(S.last===t)return;const y=todayKey(new Date(Date.now()-DAY)),y2=todayKey(new Date(Date.now()-2*DAY));
+  if(S.last===y)S.streak++;else if(S.last===y2&&S.freezeUsed!==weekKey()){S.streak++;S.freezeUsed=weekKey()}else S.streak=1;S.last=t;S.best=Math.max(S.best,S.streak)}
+function logHist(k,n){const t=todayKey();S.hist[t]=S.hist[t]||{q:0,ok:0,nw:0,xp:0};S.hist[t][k]=(S.hist[t][k]||0)+n}
+function daysToGoal(){return Math.ceil((new Date(S.goal+"T00:00:00")-new Date())/DAY)}
+function level(){let L=LEVELS[0],next=null;for(let i=0;i<LEVELS.length;i++)if(S.xp>=LEVELS[i][0]){L=LEVELS[i];next=LEVELS[i+1]||null}return{L,next}}
+const unitOf=k=>UNITS.find(u=>u[0]===SKILLS[IDX[k]].u);
+const semSkills=sem=>SKILLS.filter(s=>{const u=UNITS.find(x=>x[0]===s.u);return sem==="上"?(u[3]==="六上"||u[3]==="五年級"):u[3]==="六下"});
+function addBadge(id){if(!S.badges.includes(id)){S.badges.push(id);toast("🏅 "+BADGES.find(b=>b[0]===id)[1])}}
+function checkBadges(){if(S.streak>=7)addBadge("s7");if(S.streak>=21)addBadge("s21");if(masteredCount()>=20)addBadge("m20");
+  if(semSkills("上").every(s=>learned(s.k)))addBadge("sem1");if(semSkills("下").every(s=>learned(s.k)))addBadge("sem2")}
+function pace(){const left=unseen().length,d=daysToGoal(),days=Math.max(1,Math.round((d-14)*6/7));return{left,d,rec:Math.min(6,Math.max(1,Math.ceil(left/days)))}}
+
+// ---------- answers ----------
+function toRat(x){if(typeof x==="number")return{n:x,d:1};return x}
+function parseAns(str){str=str.replace(/−/g,"-").trim();if(!str)return null;
+  if(/^-?\d+\/-?\d+$/.test(str)){const [a,b]=str.split("/").map(Number);if(b===0)return null;return F(a,b)}
+  if(/^-?\d*\.?\d+$/.test(str)){const neg=str.startsWith("-");const t=str.replace("-","");const [i,f=""]=t.split(".");const d=10**f.length;return F((neg?-1:1)*(Number(i||0)*d+Number(f||0)),d)}
+  return null}
+function sameAns(v,ans){const a=toRat(ans);return v&&v.n*a.d===a.n*v.d}
+
+// ---------- parent report ----------
+function summary(){return{name:S.name,xp:S.xp,streak:S.streak,mastered:masteredCount(),seen:SKILLS.filter(s=>learned(s.k)).length,total:SKILLS.length,due:dueList().length,last:S.last}}
+function report(){if(!S.reportUrl)return;const t=todayKey(),h=S.hist[t]||{q:0,ok:0,nw:0,xp:0};
+  const weak=Object.keys(S.w).filter(k=>IDX[k]!==undefined&&S.w[k].l>0&&S.w[k].b<=2).sort((a,b)=>S.w[b].l-S.w[a].l).slice(0,10).map(k=>SKILLS[IDX[k]].name+"("+S.w[k].l+")").join(", ");
+  const body=JSON.stringify(Object.assign(summary(),{date:t,todayQ:h.q,todayAcc:h.q?Math.round(h.ok/h.q*100):"",todayNew:h.nw,todayXP:h.xp,weak,backup:btoa(unescape(encodeURIComponent(JSON.stringify(S))))}));
+  S.pending=true;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+  fetch(S.reportUrl,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body}).then(()=>{S.pending=false;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}).catch(()=>{})}
+
+// ---------- UI helpers ----------
+const $=s=>document.querySelector(s);const main=$("#main");let tab="today";let inQuiz=false;
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;"}[c]));
+const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function toast(m){const d=document.createElement("div");d.className="xp-pop";d.style.fontSize="22px";d.style.top="28%";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),1100)}
+function addXP(n){S.xp+=n;logHist("xp",n);const p=document.createElement("div");p.className="xp-pop";p.textContent="+"+n+" XP";document.body.appendChild(p);setTimeout(()=>p.remove(),900);updateBoard()}
+function updateBoard(){$("#sbStreak").textContent=S.streak;$("#sbXP").textContent=S.xp;$("#sbDue").textContent=dueList().length;$("#sbM").textContent=masteredCount()+"/"+SKILLS.length}
+function render(){inQuiz=false;kpHandler=null;updateBoard();document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab));({today:rToday,skills:rSkills,plan:rPlan,stats:rStats,settings:rSettings})[tab]();window.scrollTo(0,0)}
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{if(inQuiz&&!confirm("Leave this session? Answers so far are saved."))return;tab=b.dataset.t;render()});
+const unitTag=u=>`<span class="pill">${esc(u[2])} · ${esc(u[3])}</span>`;
+
+// keypad
+let kpHandler=null,kpVal="";
+function keypadHTML(){const k=["1","2","3","/","4","5","6",".","7","8","9","−"];return `<div class="ans" id="ans">&nbsp;</div><div class="kp">${k.map(x=>`<button class="key${x==="/"||x==="."||x==="−"?" op":""}" data-k="${x}">${x}</button>`).join("")}<button class="key w2" data-k="0">0</button><button class="key w2 op" data-k="⌫">⌫</button></div><button class="btn go" id="goBtn">Check ✓</button><p class="kb" style="text-align:center">Fractions like 7/2 are fine (write mixed numbers that way). Decimals work too.</p>`}
+function bindKeypad(onSubmit){kpVal="";kpHandler=onSubmit;const show=()=>{$("#ans").innerHTML=kpVal?esc(kpVal):"&nbsp;"};
+  document.querySelectorAll(".key").forEach(b=>b.onclick=()=>press(b.dataset.k));$("#goBtn").onclick=()=>press("ok");show()}
+function press(k){if(!kpHandler)return;if(k==="ok"){const v=parseAns(kpVal);if(v)kpHandler(v);else if(kpVal)toast("Check the format");return}
+  if(k==="⌫")kpVal=kpVal.slice(0,-1);else if(k==="−"){kpVal=kpVal.startsWith("−")?kpVal.slice(1):"−"+kpVal}else if(kpVal.length<10)kpVal+=k;$("#ans").innerHTML=kpVal?esc(kpVal):"&nbsp;"}
+document.addEventListener("keydown",e=>{if(!kpHandler)return;if(/^[0-9]$/.test(e.key))press(e.key);else if(e.key==="-")press("−");else if(e.key==="/"||e.key===".")press(e.key);else if(e.key==="Backspace")press("⌫");else if(e.key==="Enter"){e.preventDefault();press("ok")}});
+
+function learnCard(k){const s=SKILLS[IDX[k]],u=unitOf(k),ex=s.gen();
+  return `<p class="muted">New skill ${unitTag(u)}</p><h2>${esc(s.name)}</h2><div class="hint" style="margin-top:12px">💡 ${esc(s.idea)}</div>
+  <div class="ex"><p class="muted" style="margin:0 0 4px">Worked example</p><p class="qtext">${esc(ex.text)}</p><p><b>Answer: ${esc(fs(ex.ans))}</b></p><p class="muted">${esc(ex.sol)}</p></div>`}
+
+// ---------- today ----------
+function nextCheckUnit(){return UNITS.find(u=>SKILLS.some(s=>s.u===u[0]&&!S.check[s.k]&&ws(s.k).b===0))}
+function rToday(){const due=dueList(),h=S.hist[todayKey()]||{nw:0},un=unseen();const nNew=Math.min(Math.max(0,S.perDay-(h.nw||0)),un.length);
+  const {L,next}=level();const p=next?Math.round((S.xp-L[0])/(next[0]-L[0])*100):100;const done=due.length===0&&nNew===0;const nc=nextCheckUnit();
+  main.innerHTML=`<div class="lvl"><div class="ring" style="--p:${p}%"><i>${L[2]}</i></div><div><h2>${esc(S.name||"Student")} · ${L[1]}</h2><div class="muted">${next?`${next[0]-S.xp} XP to ${next[1]}`:"Max level"}</div></div></div>
+  ${nc?`<div class="note" style="border-style:solid;border-color:var(--gold)"><b>Unit check: ${esc(nc[1])}</b> <span class="muted">(${esc(nc[2])})</span><br>One question per skill. Skills you get right are marked as known, so practice goes only to the gaps.<button class="btn gold" style="margin-top:10px" id="chkBtn">Start unit check</button></div>`:""}
+  <div class="rink"><h1>${done?"Full time ✔":"Today’s match"}</h1>
+  <p class="muted">${done?"Reviews are done and new skills are in. Come back tomorrow, or try a bonus round.":`<b>${Math.min(due.length,15)}</b> reviews due · <b>${nNew}</b> new skill${nNew===1?"":"s"} · about ${Math.max(5,Math.ceil(Math.min(due.length,15)*1+nNew*4))} min`}</p>
+  <p class="muted" style="margin-top:12px;font-size:15px">Word problems today come from:</p><div class="chips">${[["soccer","⚽ Soccer"],["minecraft","⛏️ Minecraft"],["mix","🔀 Mix"]].map(t=>`<button class="chip th ${S.theme===t[0]?"on":""}" data-th="${t[0]}">${t[1]}</button>`).join("")}</div>
+  <div class="row" style="margin-top:8px"><button class="btn" id="startBtn" ${done?"disabled":""}>${due.length?"Start reviews + new skills":"Start new skills"}</button>
+  <button class="btn gold" id="bonusBtn" ${SKILLS.filter(s=>learned(s.k)).length<3?"disabled":""}>Bonus round: 5 mixed questions</button>
+  ${done&&un.length?`<button class="btn ghost" id="extraBtn">Learn 1 extra skill</button>`:""}</div></div>
+  <div class="blueline"><h3>How this works</h3><p class="muted" style="font-size:15px">Each skill comes back after 1 → 3 → 7 → 14 → 30 days, with a new problem every time. Right answer: it moves up. Wrong: you see the full solution, try a similar problem, and it comes back tomorrow. No XP is ever taken away.</p></div>`;
+  document.querySelectorAll(".chip.th").forEach(c=>c.onclick=()=>{S.theme=c.dataset.th;save();rToday()});
+  $("#startBtn").onclick=()=>session(shuffle(due).slice(0,15),un.slice(0,nNew));
+  $("#bonusBtn").onclick=()=>session(shuffle(SKILLS.filter(s=>learned(s.k)).map(s=>s.k)).slice(0,5),[],true);
+  const x=$("#extraBtn");if(x)x.onclick=()=>session([],un.slice(0,1));const c=$("#chkBtn");if(c)c.onclick=()=>unitCheck(nc[0])}
+
+// ---------- session ----------
+function session(dueKeys,newKeys,bonus){inQuiz=true;const queue=[];
+  dueKeys.forEach(k=>queue.push({kind:"q",k}));
+  newKeys.forEach(k=>{queue.push({kind:"learn",k});queue.push({kind:"q",k,isNew:true})});
+  shuffle(newKeys).forEach(k=>queue.push({kind:"q",k,isNew:true,second:true}));
+  let i=0,q=0,ok=0,combo=0,wrongs=[];
+  const step=()=>{if(i>=queue.length)return finish();const it=queue[i];const pct=Math.round(i/queue.length*100);const s=SKILLS[IDX[it.k]];
+    if(it.kind==="learn"){if(ws(it.k).b===0){S.w[it.k]={b:1,d:Date.now()+DAY,l:0,c:0};logHist("nw",1);save()}
+      main.innerHTML=`<div class="prog"><i style="width:${pct}%"></i></div><div class="wcard">${learnCard(it.k)}</div><button class="btn" style="margin-top:12px" id="nx">Got it — let me try</button>`;$("#nx").onclick=()=>{i++;addXP(5);step()};return}
+    const Q=s.gen();
+    main.innerHTML=`<div class="prog"><i style="width:${pct}%"></i></div><p class="muted">${bonus?"Bonus":it.isNew?"New skill":it.retry?"Similar problem":"Review"} · ${i+1}/${queue.length} · ${esc(s.name)} ${combo>=3?`· 🔥 ${combo}`:""}</p>
+      <div class="wcard q"><p class="qtext">${esc(Q.text)}</p></div>${keypadHTML()}<div id="fb"></div>`;
+    bindKeypad(v=>{kpHandler=null;const right=sameAns(v,Q.ans);q++;logHist("q",1);
+      if(!it.retry&&!bonus&&!(it.second&&right))grade(it.k,right);
+      if(right){ok++;combo++;logHist("ok",1);addXP(bonus?6:10+(combo>=4?5:0));$("#ans").classList.add("ok");
+        $("#fb").innerHTML=`<div class="fb"><b>Right.</b> <span class="muted">${esc(Q.sol)}</span></div><button class="btn" style="margin-top:10px" id="nx">Next</button>`;$("#nx").onclick=()=>{i++;step()}}
+      else{combo=0;wrongs.push(it.k);addXP(2);$("#ans").classList.add("bad");
+        $("#fb").innerHTML=`<div class="fb bad"><b>Answer: ${esc(fs(Q.ans))}</b><br>${esc(Q.sol)}<div class="hint" style="margin-top:8px">💡 ${esc(s.idea)}</div></div><button class="btn" style="margin-top:10px" id="nx">Try a similar one</button>`;
+        $("#nx").onclick=()=>{queue.splice(i+1,0,{kind:"q",k:it.k,retry:true});i++;step()}}
+      save()})};
+  const finish=()=>{inQuiz=false;touchStreak();addBadge("first");if(q>=8&&ok===q)addBadge("perfect");checkBadges();save();report();
+    const acc=q?Math.round(ok/q*100):100;
+    main.innerHTML=`<div class="rink"><h1>Full time</h1><div class="stat"><span>Questions</span><span class="v">${q}</span></div><div class="stat"><span>Accuracy</span><span class="v">${acc}%</span></div><div class="stat"><span>Streak</span><span class="v">🔥 ${S.streak}</span></div>
+    ${wrongs.length?`<div class="blueline"><h3>Coming back tomorrow</h3>${[...new Set(wrongs)].map(k=>`<div class="wl"><b>${esc(SKILLS[IDX[k]].name)}</b><span class="muted">${esc(unitOf(k)[2])}</span></div>`).join("")}</div>`:`<p style="margin-top:14px">Clean sheet. 🧤</p>`}
+    <button class="btn" style="margin-top:16px" id="home">Back to Today</button></div>`;$("#home").onclick=()=>{tab="today";render()}};
+  step()}
+
+// ---------- unit check ----------
+function unitCheck(u){inQuiz=true;const unit=UNITS.find(x=>x[0]===u);const keys=SKILLS.filter(s=>s.u===u).map(s=>s.k);let i=0;const res=[];
+  const end=()=>{inQuiz=false;addBadge("checked");save();const good=res.filter(r=>r.ok).length;
+    main.innerHTML=`<div class="rink"><h1>Check done: ${esc(unit[1])}</h1><p class="muted">${esc(unit[2])} · ${esc(unit[3])}</p><p style="font-size:19px">${good} of ${res.length} right.</p>
+    ${res.map(r=>`<div class="wl"><b>${esc(SKILLS[IDX[r.k]].name)}</b><span class="pill ${r.ok?"b4":"due"}">${r.ok?"known":r.skip?"skipped":"to learn"}</span></div>`).join("")}
+    <p class="muted" style="margin-top:10px">Known skills still come back for review in a week. The rest are added to your daily sessions.</p><button class="btn" style="margin-top:12px" id="home">Back to Today</button></div>`;$("#home").onclick=()=>{tab="today";render()}};
+  const step=()=>{if(i>=keys.length)return end();const k=keys[i],s=SKILLS[IDX[k]],Q=s.gen();
+    main.innerHTML=`<div class="prog"><i style="width:${Math.round(i/keys.length*100)}%"></i></div><p class="muted">Unit check · ${esc(unit[1])} · ${i+1}/${keys.length}</p><div class="wcard q"><p class="qtext">${esc(Q.text)}</p></div>${keypadHTML()}<div class="row" style="margin-top:6px"><button class="btn ghost sm" id="skip">I haven't learned this</button><button class="btn ghost sm" id="stop">Stop for now</button></div>`;
+    const mark=(ok,skip)=>{S.check[k]={ok,d:todayKey()};if(ok&&ws(k).b===0)S.w[k]={b:3,d:Date.now()+7*DAY,l:0,c:1};res.push({k,ok,skip});save();i++;step()};
+    bindKeypad(v=>{kpHandler=null;mark(sameAns(v,Q.ans),false)});$("#skip").onclick=()=>{kpHandler=null;mark(false,true)};$("#stop").onclick=()=>{kpHandler=null;end()}};
+  step()}
+
+// ---------- skills tab ----------
+function rSkills(){const now=Date.now();
+  main.innerHTML=`<h1>Skills</h1><p class="muted">Mapped to Taiwan's 108 curriculum for Grade 6. Tap a unit for details or to run its check.</p>${UNITS.map(u=>{const its=SKILLS.filter(s=>s.u===u[0]);const m=its.filter(s=>mastered(s.k)).length,l=its.filter(s=>learned(s.k)).length;
+    return `<button class="unit" data-u="${u[0]}"><div class="row" style="justify-content:space-between;width:100%;align-items:baseline"><span><b>${esc(u[1])}</b> <span class="muted">${esc(u[2])}</span></span><span class="muted">${esc(u[3])} · ${m}/${its.length}</span></div><div class="bar"><i style="width:${m/its.length*100}%"></i><i class="s" style="width:${(l-m)/its.length*100}%"></i></div></button>`}).join("")}<p class="kb">Dark = mastered · light = learning</p>`;
+  document.querySelectorAll(".unit").forEach(b=>b.onclick=()=>{const u=UNITS.find(x=>x[0]===b.dataset.u);const its=SKILLS.filter(s=>s.u===u[0]);$("#modal").classList.remove("hidden");
+    $("#modal").innerHTML=`<div style="max-height:82vh;overflow:auto"><h2>${esc(u[1])}</h2><p class="muted">${esc(u[2])} · ${esc(u[3])}</p>${its.map(s=>{const x=ws(s.k),c=S.check[s.k];return `<div class="wl"><span><b>${esc(s.name)}</b>${c?` <span class="muted" style="font-size:13px">check: ${c.ok?"✓":"✗"}</span>`:""}</span><span class="pill ${x.b>=4?"b4":x.b>0&&x.d<=now?"due":""}">${x.b===0?"new":x.b>=4?"mastered":x.d<=now?"due":"box "+x.b}${x.l?` · ${x.l} miss`:""}</span></div>`}).join("")}
+    <div class="row" style="margin-top:12px"><button class="btn gold sm" id="uc">Run unit check</button><button class="btn ghost sm" id="cl">Close</button></div></div>`;
+    $("#cl").onclick=()=>$("#modal").classList.add("hidden");$("#uc").onclick=()=>{$("#modal").classList.add("hidden");unitCheck(u[0])}})}
+
+// ---------- plan ----------
+function rPlan(){const pc=pace();const s1=semSkills("上"),s2=semSkills("下");const l1=s1.filter(s=>learned(s.k)).length,l2=s2.filter(s=>learned(s.k)).length;
+  main.innerHTML=`<h1>Game plan</h1><p class="muted">Target: Taiwan Grade 6 (六年級, 108 curriculum). Goal date ${S.goal} · ${pc.d} days · ${pc.left} skills not yet learned.</p>
+  <div class="phase now"><div class="w">Now</div><div><b>Unit checks first.</b> Run the check for each unit (Today shows the next one). It shows which Grade 6 skills are already solid and which are gaps.</div></div>
+  <div class="phase"><div class="w">五年級 + 六上</div><div><b>${l1}/${s1.length} learned.</b> Grade 5 foundations, factors and multiples (質因數、公因數與公倍數), dividing fractions and decimals, ratios (比與比值), circles (圓周長與圓面積). Taught September to January in Taiwan, so they matter most right now.</div></div>
+  <div class="phase"><div class="w">六下</div><div><b>${l2}/${s2.length} learned.</b> Proportion and map scale (正比與比例尺), speed (速率), prisms and cylinders (柱體), letters for numbers (用文字符號表示數), circle graphs (圓形圖). Taught February to June.</div></div>
+  <div class="phase"><div class="w">Daily</div><div>One session, 6 days a week, about 10 minutes: due reviews first, then ${S.perDay} new skill${S.perDay===1?"":"s"}. ${pc.rec>S.perDay?`To finish all skills two weeks before the goal date, about ${pc.rec} new per day is needed.`:""}</div></div>
+  <div class="blueline"><h3>Good to know</h3><p class="muted" style="font-size:15px">Taiwanese publishers (康軒, 南一, 翰林) order a few Grade 6 units differently, so the 六上 / 六下 split here is approximate. The app drills the core calculation of each topic; once a unit is mastered, the matching chapter of a Taiwanese Grade 6 workbook is a good next step for longer word problems.</p></div>`}
+
+// ---------- stats ----------
+function rStats(){const days=[];for(let k=6;k>=0;k--){const key=todayKey(new Date(Date.now()-k*DAY));days.push({key,h:S.hist[key]})}
+  const tricky=SKILLS.filter(s=>ws(s.k).l>0).sort((a,b)=>ws(b.k).l-ws(a.k).l).slice(0,8);
+  const gaps=SKILLS.filter(s=>S.check[s.k]&&!S.check[s.k].ok);
+  main.innerHTML=`<h1>Stats</h1><div class="stat"><span>Skills mastered</span><span class="v">${masteredCount()} / ${SKILLS.length}</span></div><div class="stat"><span>Skills learned</span><span class="v">${SKILLS.filter(s=>learned(s.k)).length}</span></div><div class="stat"><span>Best streak</span><span class="v">${S.best}</span></div><div class="stat"><span>Total XP</span><span class="v">${S.xp}</span></div>
+  ${gaps.length?`<div class="blueline"><h3>Gaps found in unit checks</h3>${gaps.map(s=>`<div class="wl"><b>${esc(s.name)}</b><span class="muted">${esc(UNITS.find(u=>u[0]===s.u)[2])} · ${mastered(s.k)?"now mastered ✓":learned(s.k)?"learning":"not started"}</span></div>`).join("")}</div>`:""}
+  <div class="blueline"><h3>Last 7 days</h3>${days.map(x=>`<div class="stat"><span>${x.key.slice(5)}</span><span>${x.h?`${x.h.q||0} questions · ${x.h.q?Math.round((x.h.ok||0)/x.h.q*100):0}% · +${x.h.xp||0} XP`:"<span class='muted'>—</span>"}</span></div>`).join("")}</div>
+  ${tricky.length?`<div class="blueline"><h3>Trickiest so far</h3>${tricky.map(s=>`<div class="wl"><b>${esc(s.name)}</b><span class="muted">${ws(s.k).l} misses</span></div>`).join("")}</div>`:""}
+  <div class="blueline"><h3>Badges</h3><div class="badges">${BADGES.map(b=>`<div class="badge ${S.badges.includes(b[0])?"got":""}"><div class="e">${b[2]}</div><b>${b[1]}</b><div class="muted">${b[3]}</div></div>`).join("")}</div></div>`}
+
+// ---------- settings ----------
+function rSettings(){const pc=pace();
+  main.innerHTML=`<h1>Setup</h1><label class="f">Name</label><input id="nm" value="${esc(S.name)}">
+  <label class="f">Goal date</label><input id="gd" type="date" value="${S.goal}">
+  <label class="f">New skills per day (suggested now: ${pc.rec})</label><input id="pd" type="number" min="1" max="6" value="${S.perDay}">
+  <button class="btn" style="margin-top:16px" id="sv">Save setup</button>
+  <div class="blueline"><h3>Parent report</h3><p class="muted" style="font-size:14px">Paste the Google Apps Script web-app URL. After each session the app sends a one-line summary and a backup to that sheet.</p><input id="ru" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(S.reportUrl||"")}"><div class="row" style="margin-top:8px"><button class="btn ghost sm" id="rt">Send a test report</button></div></div>
+  <div class="blueline"><h3>Backup</h3><div class="row"><button class="btn ghost sm" id="exp">Export progress</button><button class="btn ghost sm" id="imp">Import progress</button></div><textarea id="bk" style="width:100%;height:80px;margin-top:8px;font:13px monospace;border:2px solid var(--line);border-radius:8px;background:var(--ice2);color:var(--ink)" placeholder="Progress code appears here / paste a code here"></textarea></div>
+  <div class="note">Progress is saved on this device. App version ${APP_VERSION}.</div>
+  <div class="rink"><button class="btn ghost" id="rs">Reset all progress</button></div>`;
+  $("#sv").onclick=()=>{S.name=$("#nm").value.trim();S.goal=$("#gd").value||S.goal;S.perDay=Math.max(1,Math.min(6,+$("#pd").value||2));S.reportUrl=$("#ru").value.trim();save();toast("Saved");tab="today";render()};
+  $("#rt").onclick=()=>{S.reportUrl=$("#ru").value.trim();save();if(!S.reportUrl){alert("Paste a URL first.");return}report();toast("Sent — check the sheet")};
+  $("#exp").onclick=()=>{$("#bk").value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));$("#bk").select();try{navigator.clipboard.writeText($("#bk").value);toast("Copied")}catch(e){}};
+  $("#imp").onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($("#bk").value.trim()))));if(!o.w)throw 0;if(confirm("Replace current progress with this code?")){S=Object.assign(fresh(),o);save();toast("Imported");tab="today";render()}}catch(e){alert("That code is not valid.")}};
+  $("#rs").onclick=()=>{if(confirm("Reset everything? This cannot be undone.")){const nm=S.name,g=S.goal,ru=S.reportUrl;S=fresh();S.name=nm;S.goal=g;S.reportUrl=ru;save();render()}}}
+
+// ---------- boot ----------
+load();render();if(S.pending&&navigator.onLine)report();
+if(!S.name){$("#modal").classList.remove("hidden");$("#modal").innerHTML=`<div><h2>Welcome to Math Pitch</h2><p class="muted">Short daily practice on every Grade 6 math skill in Taiwan's curriculum. Start with the unit checks so practice goes only where it's needed.</p><label class="f">Your name</label><input id="n0" placeholder="Your name"><label class="f">Goal date</label><input id="g0" type="date" value="${S.goal}"><button class="btn" style="margin-top:14px" id="go">Kick off</button></div>`;
+  $("#go").onclick=()=>{S.name=$("#n0").value.trim()||"Student";S.goal=$("#g0").value||S.goal;save();$("#modal").classList.add("hidden");render()}}
+
+if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")r.update().catch(()=>{})})}).catch(()=>{});let reloaded=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(reloaded||inQuiz)return;reloaded=true;location.reload()})}
+</script>
+</body>
+</html>
