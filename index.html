@@ -113,6 +113,7 @@ label.f{display:block;margin:12px 0 4px;font-weight:600;font-size:15px}
 .sw::after{content:"";position:absolute;top:3px;left:3px;width:22px;height:22px;border-radius:50%;background:#fff;transition:left .15s}.sw.on::after{left:23px}
 .spk{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:50%;border:2px solid var(--line);background:var(--ice2);font-size:16px;vertical-align:middle;margin-left:8px;flex:none}.spk:active{background:var(--line)}.spk.big{width:42px;height:42px;font-size:20px}
 .note{font-size:14px;color:var(--ink2);border:1.5px dashed var(--line);border-radius:10px;padding:10px;margin-top:10px}
+
 .qtext{white-space:pre-line;font-size:21px;line-height:1.45;margin:0;font-variant-numeric:tabular-nums}
 .wcard.q{padding:20px 16px}
 .ans{margin:12px auto 8px;max-width:280px;text-align:center;font-family:"Barlow Condensed",sans-serif;font-weight:800;font-size:40px;border-bottom:4px solid var(--blue);min-height:54px}
@@ -126,6 +127,7 @@ label.f{display:block;margin:12px 0 4px;font-weight:600;font-size:15px}
 .unit{display:block;width:100%;text-align:left;padding:12px 0;border-bottom:1px solid var(--line)}
 .bar{height:10px;background:var(--line);border-radius:5px;overflow:hidden;display:flex;margin-top:6px}.bar i{display:block;height:100%;background:var(--green)}.bar i.s{background:color-mix(in srgb,var(--blue) 40%,var(--line))}
 .fb{white-space:pre-line}
+.chip.lg{flex:none;font-weight:600}
 </style>
 </head>
 <body>
@@ -136,32 +138,44 @@ label.f{display:block;margin:12px 0 4px;font-weight:600;font-size:15px}
   <div class="cell"><div class="n white" id="sbM">0</div><div class="l">mastered</div></div>
 </header>
 <main id="main"></main>
-<nav class="tabs" aria-label="Sections">
-  <button data-t="today" class="on"><span class="ic">⚽</span>Today</button>
-  <button data-t="skills"><span class="ic">📘</span>Skills</button>
-  <button data-t="plan"><span class="ic">📅</span>Plan</button>
-  <button data-t="stats"><span class="ic">🏆</span>Stats</button>
-  <button data-t="settings"><span class="ic">⚙️</span>Setup</button>
-</nav>
+<nav class="tabs" aria-label="Sections"><button data-t="today" class="on"><span class="ic">⚽</span><span class="tx">today</span></button><button data-t="skills"><span class="ic">📘</span><span class="tx">skills</span></button><button data-t="plan"><span class="ic">📅</span><span class="tx">plan</span></button><button data-t="stats"><span class="ic">🏆</span><span class="tx">stats</span></button><button data-t="settings"><span class="ic">⚙️</span><span class="tx">settings</span></button></nav>
 <div id="modal" class="modal hidden"></div>
 <script>
-// ===== Math Pitch skill bank: Taiwan 108-curriculum Grade 6 (六年級) + Grade 5 foundations =====
+const CFG={APPID:"mathpitch",KEY:"mathpitch-v1",APP_VERSION:"2026-11-21a",goal:"2027-06-30",lang:"en",
+ themes:[["soccer","⚽ Soccer","⚽ 足球"],["minecraft","⛏️ Minecraft","⛏️ Minecraft"],["mix","🔀 Mix","🔀 混合"]],
+ levels:[[0,"Rookie","新秀","🧢"],[250,"Academy","青訓","⚽"],[600,"Starter","先發","👟"],[1200,"Playmaker","中場核心","⭐"],[2200,"Captain","隊長","🅲"],[3600,"Golden Boot","金靴","🥇"],[5500,"Legend","傳奇","🏆"]],
+ badges:[["first","First match","第一場比賽","⚽","Finish your first session","完成第一次練習"],["checked","Scouted","球探報告","🔍","Finish a unit check","完成一次單元檢測"],
+  ["s7","7-day streak","連續 7 天","🔥","Study 7 days in a row","連續練習 7 天"],["s21","21-day streak","連續 21 天","🌋","Study 21 days in a row","連續練習 21 天"],
+  ["sem1","六上 covered","六上完成","🧱","Every Grade 5 and 六上 skill learned","學完五年級先備和六上所有技能"],["sem2","六下 covered","六下完成","💎","Every 六下 skill learned","學完六下所有技能"],
+  ["m20","20 mastered","熟練 20 個","🥅","Master 20 skills","熟練 20 個技能"],["perfect","Clean sheet","零失分","🧤","A session with zero mistakes (8+ questions)","一次練習全對（8 題以上）"]],
+ todayTitle:["Today’s match","今天的比賽"],doneTitle:["Full time ✔","終場 ✔"],finishTitle:["Full time","終場"],perfectLine:["Clean sheet. 🧤","零失分！🧤"],goBtn:["Kick off","開球"],
+ kpHint:["Fractions like 7/2 are fine (write mixed numbers that way). Decimals work too.","可以輸入分數或小數。帶分數請寫成假分數，例如 3½ 寫成 7/2。"],
+ skillsIntro:["Mapped to Taiwan's 108 curriculum for Grade 6. Tap a unit for details or to run its check.","依照台灣 108 課綱六年級編排。點選單元可以查看細節或進行檢測。"],
+ welcome:["Welcome to Math Pitch","歡迎使用 Math Pitch","Short daily practice on every Grade 6 math skill in Taiwan's curriculum. Start with the unit checks so practice goes only where it's needed.","每天短時間練習台灣六年級數學的每個技能。先做單元檢測，之後只練需要加強的地方。"],
+ plan:({pc,s1,s2,l1,l2})=>`<p class="muted">${L(`Target: Taiwan Grade 6 (六年級, 108 curriculum). Goal date ${S.goal} · ${pc.d} days · ${pc.left} skills not yet learned.`,`目標：台灣六年級（108 課綱）。目標日期 ${S.goal}，還有 ${pc.d} 天，尚有 ${pc.left} 個技能未學。`)}</p>
+  <div class="phase now"><div class="w">${L("Now","現在")}</div><div>${L("<b>Unit checks first.</b> Run the check for each unit (Today shows the next one). It shows which Grade 6 skills are already solid and which are gaps.","<b>先做單元檢測。</b>每個單元都做一次（「今天」頁會顯示下一個），就知道哪些六年級技能已經會了、哪些是缺口。")}</div></div>
+  <div class="phase"><div class="w">${L("Gr 5 + 六上","五年級＋六上")}</div><div>${L(`<b>${l1}/${s1.length} learned.</b> Grade 5 foundations, factors and multiples (質因數、公因數與公倍數), dividing fractions and decimals, ratios (比與比值), circles (圓周長與圓面積). Taught September to January in Taiwan, so they matter most right now.`,`<b>已學 ${l1}/${s1.length}。</b>五年級先備、質因數與公因數公倍數、分數與小數除法、比與比值、圓周長與圓面積。台灣在 9 月到 1 月教，所以現在最重要。`)}</div></div>
+  <div class="phase"><div class="w">六下</div><div>${L(`<b>${l2}/${s2.length} learned.</b> Proportion and map scale (正比與比例尺), speed (速率), prisms and cylinders (柱體), letters for numbers (用文字符號表示數), circle graphs (圓形圖). Taught February to June.`,`<b>已學 ${l2}/${s2.length}。</b>正比與比例尺、速率、柱體體積與表面積、用文字符號表示數、圓形圖。在 2 月到 6 月教。`)}</div></div>
+  <div class="phase"><div class="w">${L("Daily","每天")}</div><div>${L(`One session, 6 days a week, about 10 minutes: due reviews first, then ${S.perDay} new skill${S.perDay===1?"":"s"}.`,`一週 6 天，每天一次，約 10 分鐘：先複習，再學 ${S.perDay} 個新技能。`)} ${pc.rec>S.perDay?L(`To finish all skills two weeks before the goal date, about ${pc.rec} new per day is needed.`,`若要在目標日期前兩週學完，每天約需 ${pc.rec} 個新技能。`):""}</div></div>
+  <div class="blueline"><h3>${L("Good to know","補充說明")}</h3><p class="muted" style="font-size:15px">${L("Taiwanese publishers (康軒, 南一, 翰林) order a few Grade 6 units differently, so the 六上 / 六下 split here is approximate. The app drills the core calculation of each topic; once a unit is mastered, the matching chapter of a Taiwanese Grade 6 workbook is a good next step for longer word problems.","台灣三家出版社（康軒、南一、翰林）對六年級幾個單元的順序安排不同，這裡的六上／六下分法是近似的。這個 App 練的是每個主題的核心計算；單元熟練後，可以接著做台灣六年級習作的對應章節，練習較長的應用題。")}</p></div>`};
+
+// ===== Math Pitch skill bank: Taiwan 108-curriculum Grade 6 (六年級) + Grade 5 foundations — bilingual =====
+const L=(en,zh)=>(typeof S!=="undefined"&&S&&S.lang==="zh")?zh:en;
 const rnd=(a,b)=>a+Math.floor(Math.random()*(b-a+1));
 const pick=a=>a[Math.floor(Math.random()*a.length)];
 const gcd=(a,b)=>{a=Math.abs(a);b=Math.abs(b);while(b){[a,b]=[b,a%b]}return a||1};
 const lcm=(a,b)=>a/gcd(a,b)*b;
 function F(n,d=1){if(d<0){n=-n;d=-d}const g=gcd(n,d);return{n:n/g,d:d/g}}
 const neg=n=>n<0?"−"+(-n):String(n);
-// rational -> string: integer, terminating decimal, or fraction
 function dec(f){if(typeof f==="number")f={n:f,d:1};let d=f.d;while(d%2===0)d/=2;while(d%5===0)d/=5;if(d!==1)return null;
-  let k=0,m=f.d;while(m!==1){if(m%10===0){m/=10}else if(m%2===0){m/=2}else{m/=5}k++}
-  return neg(+(f.n/f.d).toFixed(Math.min(k,6)))}
+  let k=0,m=f.d;while(m!==1){if(m%10===0){m/=10}else if(m%2===0){m/=2}else{m/=5}k++}return neg(+(f.n/f.d).toFixed(Math.min(k,6)))}
 function fs(f){if(typeof f==="number")return neg(f);return f.d===1?neg(f.n):neg(f.n)+"/"+f.d}
-function ds(f){const r=dec(f);return r===null?fs(f):r}           // prefer decimal when it terminates
+function ds(f){const r=dec(f);return r===null?fs(f):r}
 const fr=(n,d)=>`${n}/${d}`;
 const red=(n,d)=>{const f=F(n,d);return f.n===n&&f.d===d?fr(n,d):fr(n,d)+" = "+fs(f)};
-const D=(x,k)=>(x/10**k).toFixed(k);                                  // integer -> decimal string
-const TH=()=>{const t=(typeof S!=="undefined"&&S.theme)||"mix";return t==="mix"?pick(["soccer","minecraft"]):t};
+const D=(x,k)=>(x/10**k).toFixed(k);
+const nf=n=>n.toLocaleString("en-US");
+const TH=()=>{const t=(typeof S!=="undefined"&&S&&S.theme)||"mix";return t==="mix"?pick(["soccer","minecraft"]):t};
 
 const UNITS=[
  ["f5","Grade 5 foundations","五年級先備","五年級"],
@@ -174,153 +188,152 @@ const UNITS=[
  ["solid","Prisms and cylinders","柱體體積與表面積","六下"],
  ["alg","Letters for numbers","用文字符號表示數","六下"],
  ["data","Circle graphs","圓形圖","六下"]];
+const SEM1=["五年級","六上"],SEM2=["六下"];
 
 const SKILLS=[
 // ---------- Grade 5 foundations ----------
-{k:"f5:fadd",u:"f5",name:"Adding and subtracting fractions",idea:"Use a common denominator first: a/b + c/d = (ad + bc) / bd, then simplify.",gen(){
+{k:"f5:fadd",u:"f5",name:["Adding and subtracting fractions","異分母分數加減"],idea:["Use a common denominator first, then add or subtract the tops and simplify.","先通分成相同分母，再把分子相加減，最後約分。"],gen(){
   let b,d;do{b=rnd(2,12);d=rnd(2,12)}while(b===d);const a=rnd(1,b-1),c=rnd(1,d-1);
-  const plus=Math.random()<.5||a*d<=c*b;const L=lcm(b,d);
-  if(plus){const ans=F(a*d+c*b,b*d);return{text:`${fr(a,b)} + ${fr(c,d)} = ?`,ans,sol:`${fr(a*L/b,L)} + ${fr(c*L/d,L)} = ${red(a*L/b+c*L/d,L)}`}}
-  const ans=F(a*d-c*b,b*d);return{text:`${fr(a,b)} − ${fr(c,d)} = ?`,ans,sol:`${fr(a*L/b,L)} − ${fr(c*L/d,L)} = ${red(a*L/b-c*L/d,L)}`}}},
-{k:"f5:fmul",u:"f5",name:"Multiplying fractions",idea:"Multiply tops and bottoms: a/b × c/d = ac / bd. Cancel common factors first to keep numbers small.",gen(){
+  const plus=Math.random()<.5||a*d<=c*b;const Lc=lcm(b,d);
+  if(plus){const ans=F(a*d+c*b,b*d);return{text:`${fr(a,b)} + ${fr(c,d)} = ?`,ans,sol:`${fr(a*Lc/b,Lc)} + ${fr(c*Lc/d,Lc)} = ${red(a*Lc/b+c*Lc/d,Lc)}`}}
+  const ans=F(a*d-c*b,b*d);return{text:`${fr(a,b)} − ${fr(c,d)} = ?`,ans,sol:`${fr(a*Lc/b,Lc)} − ${fr(c*Lc/d,Lc)} = ${red(a*Lc/b-c*Lc/d,Lc)}`}}},
+{k:"f5:fmul",u:"f5",name:["Multiplying fractions","分數乘法"],idea:["Multiply tops and bottoms: a/b × c/d = ac / bd. Cancel common factors first to keep numbers small.","分子乘分子、分母乘分母：a/b × c/d = ac / bd。可以先約分讓數字變小。"],gen(){
   const b=rnd(2,9),d=rnd(2,9),a=rnd(1,9),c=rnd(1,9);const ans=F(a*c,b*d);
   return{text:`${fr(a,b)} × ${fr(c,d)} = ?`,ans,sol:`${a}×${c} ⁄ ${b}×${d} = ${red(a*c,b*d)}`}}},
-{k:"f5:dmul",u:"f5",name:"Multiplying decimals",idea:"Multiply as whole numbers, then count the decimal places in both numbers.",gen(){
+{k:"f5:dmul",u:"f5",name:["Multiplying decimals","小數乘法"],idea:["Multiply as whole numbers, then count the decimal places in both numbers.","先當整數相乘，再數兩數共有幾位小數。"],gen(){
   const x=rnd(11,99),kx=rnd(1,2),y=rnd(2,25),ky=rnd(0,1);const ans=F(x*y,10**(kx+ky));
-  return{text:`${D(x,kx)} × ${D(y,ky)} = ?`,ans,sol:`${x} × ${y} = ${x*y}; ${kx+ky} decimal place${kx+ky>1?"s":""} → ${ds(ans)}`}}},
-{k:"f5:pct",u:"f5",name:"Percentages",idea:"p% of N = N × p / 100.",gen(){
+  return{text:`${D(x,kx)} × ${D(y,ky)} = ?`,ans,sol:`${x} × ${y} = ${x*y} → ${ds(ans)}`}}},
+{k:"f5:pct",u:"f5",name:["Percentages","百分率"],idea:["p% of N = N × p / 100.","N 的 p% = N × p ⁄ 100。"],gen(){
   const N=rnd(2,20)*20,p=rnd(1,19)*5;const ans=F(N*p,100);
-  return{text:`What is ${p}% of ${N}?`,ans,sol:`${N} × ${p} ⁄ 100 = ${ds(ans)}`}}},
-{k:"f5:order",u:"f5",name:"Order of operations",idea:"Brackets first, then × and ÷ from left to right, then + and − from left to right.",gen(){
+  return{text:L(`What is ${p}% of ${N}?`,`${N} 的 ${p}% 是多少？`),ans,sol:`${N} × ${p} ⁄ 100 = ${ds(ans)}`}}},
+{k:"f5:order",u:"f5",name:["Order of operations","四則混合運算"],idea:["Brackets first, then × and ÷ from left to right, then + and − from left to right.","先算括號，再由左到右算 × ÷，最後由左到右算 + −。"],gen(){
   const e=rnd(2,6),q=rnd(2,9),c=rnd(2,9),d=rnd(1,c-1)||1;const b=e*q;const a=rnd(5,40);
   if(Math.random()<.5){return{text:`${a} + ${b} ÷ ${e} × ${c} = ?`,ans:a+q*c,sol:`${b} ÷ ${e} = ${q}; ${q} × ${c} = ${q*c}; ${a} + ${q*c} = ${a+q*c}`}}
   const v=(c+d)*e,z=a%v||1;return{text:`(${c} + ${d}) × ${e} − ${z} = ?`,ans:v-z,sol:`(${c+d}) × ${e} = ${v}; ${v} − ${z} = ${v-z}`}}},
-{k:"f5:area",u:"f5",name:"Areas of triangles and trapezoids",idea:"Triangle = base × height ÷ 2.  Trapezoid = (top + bottom) × height ÷ 2.",gen(){
-  if(Math.random()<.5){const b=rnd(3,20),h=rnd(2,15);return{text:`A triangle has base ${b} cm and height ${h} cm. What is its area in cm²?`,ans:F(b*h,2),sol:`${b} × ${h} ÷ 2 = ${ds(F(b*h,2))}`}}
-  const a=rnd(2,12),b=rnd(a+1,20),h=rnd(2,12);return{text:`A trapezoid has parallel sides ${a} cm and ${b} cm and height ${h} cm. What is its area in cm²?`,ans:F((a+b)*h,2),sol:`(${a} + ${b}) × ${h} ÷ 2 = ${ds(F((a+b)*h,2))}`}}},
+{k:"f5:area",u:"f5",name:["Areas of triangles and trapezoids","三角形與梯形面積"],idea:["Triangle = base × height ÷ 2.  Trapezoid = (top + bottom) × height ÷ 2.","三角形面積 = 底 × 高 ÷ 2；梯形面積 =（上底 + 下底）× 高 ÷ 2。"],gen(){
+  if(Math.random()<.5){const b=rnd(3,20),h=rnd(2,15);return{text:L(`A triangle has base ${b} cm and height ${h} cm. What is its area in cm²?`,`三角形的底 ${b} 公分、高 ${h} 公分，面積是多少平方公分？`),ans:F(b*h,2),sol:`${b} × ${h} ÷ 2 = ${ds(F(b*h,2))}`}}
+  const a=rnd(2,12),b=rnd(a+1,20),h=rnd(2,12);return{text:L(`A trapezoid has parallel sides ${a} cm and ${b} cm and height ${h} cm. What is its area in cm²?`,`梯形的上底 ${a} 公分、下底 ${b} 公分、高 ${h} 公分，面積是多少平方公分？`),ans:F((a+b)*h,2),sol:`(${a} + ${b}) × ${h} ÷ 2 = ${ds(F((a+b)*h,2))}`}}},
 // ---------- 質因數、公因數與公倍數 ----------
-{k:"fac:prime",u:"fac",name:"Prime factorization",idea:"Keep dividing by the smallest prime (2, 3, 5, 7, …) until only primes are left. 60 = 2 × 2 × 3 × 5.",gen(){
-  const ps=[2,2,3,3,5,7,11,13];const fs_=Array.from({length:rnd(3,4)},()=>pick(ps)).sort((a,b)=>a-b);const N=fs_.reduce((a,b)=>a*b,1);
-  if(Math.random()<.5)return{text:`What is the largest prime factor of ${N}?`,ans:fs_[fs_.length-1],sol:`${N} = ${fs_.join(" × ")}`};
-  return{text:`Write ${N} as a product of primes. How many prime factors are there, counting repeats? (Example: 12 = 2 × 2 × 3 has 3.)`,ans:fs_.length,sol:`${N} = ${fs_.join(" × ")} → ${fs_.length}`}}},
-{k:"fac:gcd",u:"fac",name:"Greatest common factor",idea:"The GCF is the product of the prime factors both numbers share.",gen(){
+{k:"fac:prime",u:"fac",name:["Prime factorization","質因數分解"],idea:["Keep dividing by the smallest prime (2, 3, 5, 7, …) until only primes are left. 60 = 2 × 2 × 3 × 5.","用最小的質數（2、3、5、7…）一直除，直到只剩質數。60 = 2 × 2 × 3 × 5。"],gen(){
+  const ps=[2,2,3,3,5,7,11,13];const f=Array.from({length:rnd(3,4)},()=>pick(ps)).sort((a,b)=>a-b);const N=f.reduce((a,b)=>a*b,1);
+  if(Math.random()<.5)return{text:L(`What is the largest prime factor of ${N}?`,`${N} 最大的質因數是多少？`),ans:f[f.length-1],sol:`${N} = ${f.join(" × ")}`};
+  return{text:L(`Write ${N} as a product of primes. How many prime factors are there, counting repeats? (Example: 12 = 2 × 2 × 3 has 3.)`,`把 ${N} 做質因數分解，共有幾個質因數（重複的也要算）？（例：12 = 2 × 2 × 3 有 3 個）`),ans:f.length,sol:`${N} = ${f.join(" × ")} → ${f.length}`}}},
+{k:"fac:gcd",u:"fac",name:["Greatest common factor","最大公因數"],idea:["The GCF is the product of the prime factors both numbers share.","最大公因數是兩數共有的質因數相乘。"],gen(){
   const g=rnd(2,12);let x,y;do{x=rnd(2,9);y=rnd(2,9)}while(gcd(x,y)!==1||x===y);
-  return{text:`What is the greatest common factor of ${g*x} and ${g*y}?`,ans:g,sol:`${g*x} = ${g} × ${x}, ${g*y} = ${g} × ${y}; ${x} and ${y} share no factor → ${g}`}}},
-{k:"fac:lcm",u:"fac",name:"Least common multiple",idea:"LCM(a, b) = a × b ÷ GCF(a, b).",gen(){
+  return{text:L(`What is the greatest common factor of ${g*x} and ${g*y}?`,`${g*x} 和 ${g*y} 的最大公因數是多少？`),ans:g,sol:`${g*x} = ${g} × ${x}, ${g*y} = ${g} × ${y} → ${g}`}}},
+{k:"fac:lcm",u:"fac",name:["Least common multiple","最小公倍數"],idea:["LCM(a, b) = a × b ÷ GCF(a, b).","最小公倍數 = a × b ÷ 最大公因數。"],gen(){
   let a,b;do{a=rnd(3,18);b=rnd(3,18)}while(a===b||lcm(a,b)>200);
-  return{text:`What is the least common multiple of ${a} and ${b}?`,ans:lcm(a,b),sol:`GCF = ${gcd(a,b)}; ${a} × ${b} ÷ ${gcd(a,b)} = ${lcm(a,b)}`}}},
-{k:"fac:lcmw",u:"fac",name:"Common multiple word problems",idea:"'When will both happen together again?' is asking for the LCM.",gen(){
-  let a,b;do{a=rnd(3,15);b=rnd(3,15)}while(a===b||lcm(a,b)===a*b&&a*b>120||lcm(a,b)>150);
-  const t=TH();const text=t==="soccer"?`Team A trains every ${a} days and Team B every ${b} days. Both trained today. In how many days will they next train on the same day?`:`One farm is harvested every ${a} minutes and another every ${b} minutes. Both were harvested just now. After how many minutes are both harvested together again?`;
+  return{text:L(`What is the least common multiple of ${a} and ${b}?`,`${a} 和 ${b} 的最小公倍數是多少？`),ans:lcm(a,b),sol:`GCF = ${gcd(a,b)}; ${a} × ${b} ÷ ${gcd(a,b)} = ${lcm(a,b)}`}}},
+{k:"fac:lcmw",u:"fac",name:["Common multiple word problems","公倍數應用問題"],idea:["'When will both happen together again?' is asking for the LCM.","「下一次同時發生是什麼時候？」就是求最小公倍數。"],gen(){
+  let a,b;do{a=rnd(3,15);b=rnd(3,15)}while(a===b||lcm(a,b)>150);const t=TH();
+  const text=t==="soccer"?L(`Team A trains every ${a} days and Team B every ${b} days. Both trained today. In how many days will they next train on the same day?`,`A 隊每 ${a} 天練一次球，B 隊每 ${b} 天練一次。今天兩隊都練球，最少再過幾天兩隊會在同一天練球？`)
+    :L(`One farm is harvested every ${a} minutes and another every ${b} minutes. Both were harvested just now. After how many minutes are both harvested together again?`,`一座農場每 ${a} 分鐘收成一次，另一座每 ${b} 分鐘收成一次。兩座剛剛同時收成，最少再過幾分鐘會再同時收成？`);
   return{text,ans:lcm(a,b),sol:`LCM(${a}, ${b}) = ${lcm(a,b)}`}}},
 // ---------- 分數與小數除法 ----------
-{k:"div:frac",u:"div",name:"Dividing fractions",idea:"Dividing by a fraction = multiplying by its reciprocal: a/b ÷ c/d = a/b × d/c.",gen(){
+{k:"div:frac",u:"div",name:["Dividing fractions","分數除法"],idea:["Dividing by a fraction = multiplying by its reciprocal: a/b ÷ c/d = a/b × d/c.","除以一個分數 = 乘以它的倒數：a/b ÷ c/d = a/b × d/c。"],gen(){
   const b=rnd(2,9),d=rnd(2,9),a=rnd(1,12),c=rnd(1,9);const ans=F(a*d,b*c);
-  return{text:`${fr(a,b)} ÷ ${fr(c,d)} = ?  (write the answer as a fraction or whole number)`,ans,sol:`${fr(a,b)} × ${fr(d,c)} = ${red(a*d,b*c)}`}}},
-{k:"div:fword",u:"div",name:"Fraction division word problems",idea:"'How many pieces of size p fit into L?' means L ÷ p.",gen(){
-  const pd=rnd(2,6),pn=rnd(1,pd-1)||1,k=rnd(3,12);const L=F(pn*k,pd);const t=TH();
-  const text=t==="soccer"?`A training run is ${fs(L)} km. One lap of the field is ${fr(pn,pd)} km. How many laps is the run?`:`A cauldron holds ${fs(L)} liters of potion. Each bottle holds ${fr(pn,pd)} liter. How many bottles can be filled?`;
-  return{text,ans:k,sol:`${fs(L)} ÷ ${fr(pn,pd)} = ${fs(L)} × ${fr(pd,pn)} = ${k}`}}},
-{k:"div:dec",u:"div",name:"Dividing decimals",idea:"Move the decimal point in both numbers the same number of places until the divisor is a whole number.",gen(){
+  return{text:`${fr(a,b)} ÷ ${fr(c,d)} = ?`,ans,sol:`${fr(a,b)} × ${fr(d,c)} = ${red(a*d,b*c)}`}}},
+{k:"div:fword",u:"div",name:["Fraction division word problems","分數除法應用問題"],idea:["'How many pieces of size p fit into L?' means L ÷ p.","「L 可以分成幾份 p？」就是 L ÷ p。"],gen(){
+  const pd=rnd(2,6),pn=rnd(1,pd-1)||1,k=rnd(3,12);const Lt=F(pn*k,pd);const t=TH();
+  const text=t==="soccer"?L(`A training run is ${fs(Lt)} km. One lap of the field is ${fr(pn,pd)} km. How many laps is the run?`,`一次長跑訓練是 ${fs(Lt)} 公里，球場一圈是 ${fr(pn,pd)} 公里，要跑幾圈？`)
+    :L(`A cauldron holds ${fs(Lt)} liters of potion. Each bottle holds ${fr(pn,pd)} liter. How many bottles can be filled?`,`一個大鍋裝了 ${fs(Lt)} 公升的藥水，每瓶裝 ${fr(pn,pd)} 公升，可以裝滿幾瓶？`);
+  return{text,ans:k,sol:`${fs(Lt)} ÷ ${fr(pn,pd)} = ${fs(Lt)} × ${fr(pd,pn)} = ${k}`}}},
+{k:"div:dec",u:"div",name:["Dividing decimals","小數除法"],idea:["Move the decimal point in both numbers the same number of places until the divisor is a whole number.","被除數和除數的小數點同時向右移相同位數，讓除數變成整數。"],gen(){
   const y=rnd(2,25),ky=rnd(1,2),q=rnd(2,40),kq=rnd(0,1);const x=y*q;const ans=F(q,10**kq);
-  return{text:`${D(x,ky+kq)} ÷ ${D(y,ky)} = ?`,ans,sol:`Move both decimal points ${ky} place${ky>1?"s":""}: ${D(x,kq)} ÷ ${y} = ${ds(ans)}`}}},
+  return{text:`${D(x,ky+kq)} ÷ ${D(y,ky)} = ?`,ans,sol:`${D(x,kq)} ÷ ${y} = ${ds(ans)}`}}},
 // ---------- 比與比值 ----------
-{k:"ratio:value",u:"ratio",name:"Ratio value",idea:"The ratio value of a : b is a ÷ b. Equivalent ratios have the same value.",gen(){
+{k:"ratio:value",u:"ratio",name:["Ratio value","比值"],idea:["The ratio value of a : b is a ÷ b. Equivalent ratios have the same value.","a : b 的比值是 a ÷ b。相等的比，比值相同。"],gen(){
   const g=rnd(1,6);let a,b;do{a=rnd(1,12);b=rnd(1,12)}while(a===b);const ans=F(a,b);
-  return{text:`What is the ratio value of ${a*g} : ${b*g}?`,ans,sol:`${a*g} ÷ ${b*g} = ${fs(ans)}`}}},
-{k:"ratio:eq",u:"ratio",name:"Missing term in equal ratios",idea:"If a : b = c : x, multiply both terms of a : b by the same number.",gen(){
+  return{text:L(`What is the ratio value of ${a*g} : ${b*g}?`,`${a*g} : ${b*g} 的比值是多少？`),ans,sol:`${a*g} ÷ ${b*g} = ${fs(ans)}`}}},
+{k:"ratio:eq",u:"ratio",name:["Missing term in equal ratios","相等的比求未知項"],idea:["If a : b = c : x, multiply both terms of a : b by the same number.","a : b = c : x 時，把 a 和 b 同乘一個數。"],gen(){
   let a,b;do{a=rnd(1,9);b=rnd(1,9)}while(a===b);const m=rnd(2,9);
-  if(Math.random()<.5)return{text:`${a} : ${b} = ${a*m} : x.  x = ?`,ans:b*m,sol:`${a} × ${m} = ${a*m}, so x = ${b} × ${m} = ${b*m}`};
-  return{text:`${a*m} : ${b*m} = x : ${b}.  x = ?`,ans:a,sol:`${b*m} ÷ ${m} = ${b}, so x = ${a*m} ÷ ${m} = ${a}`}}},
-{k:"ratio:split",u:"ratio",name:"Sharing in a ratio",idea:"For a ratio a : b, the total has a + b equal parts. One part = total ÷ (a + b).",gen(){
+  if(Math.random()<.5)return{text:`${a} : ${b} = ${a*m} : x.  x = ?`,ans:b*m,sol:`× ${m} → x = ${b} × ${m} = ${b*m}`};
+  return{text:`${a*m} : ${b*m} = x : ${b}.  x = ?`,ans:a,sol:`÷ ${m} → x = ${a*m} ÷ ${m} = ${a}`}}},
+{k:"ratio:split",u:"ratio",name:["Sharing in a ratio","按比例分配"],idea:["For a ratio a : b, the total has a + b equal parts. One part = total ÷ (a + b).","按 a : b 分配，總數分成 a + b 份，一份 = 總數 ÷ (a + b)。"],gen(){
   let a,b;do{a=rnd(1,7);b=rnd(1,7)}while(a===b);const u=rnd(2,12),T=(a+b)*u;const t=TH();
-  const text=t==="soccer"?`Two teams scored ${T} goals in total, in the ratio ${a} : ${b}. How many goals did the higher-scoring team score?`:`${T} emeralds are shared between two players in the ratio ${a} : ${b}. How many does the player with more get?`;
-  return{text,ans:Math.max(a,b)*u,sol:`${a} + ${b} = ${a+b} parts; one part = ${T} ÷ ${a+b} = ${u}; ${Math.max(a,b)} × ${u} = ${Math.max(a,b)*u}`}}},
+  const text=t==="soccer"?L(`Two teams scored ${T} goals in total, in the ratio ${a} : ${b}. How many goals did the higher-scoring team score?`,`兩隊一共進了 ${T} 球，進球數的比是 ${a} : ${b}，進球較多的隊伍進了幾球？`)
+    :L(`${T} emeralds are shared between two players in the ratio ${a} : ${b}. How many does the player with more get?`,`${T} 顆綠寶石按 ${a} : ${b} 分給兩位玩家，分得較多的玩家拿到幾顆？`);
+  return{text,ans:Math.max(a,b)*u,sol:`${T} ÷ ${a+b} = ${u}; ${Math.max(a,b)} × ${u} = ${Math.max(a,b)*u}`}}},
 // ---------- 圓 ----------
-{k:"circle:c",u:"circle",name:"Circumference",idea:"Circumference = diameter × π. Use π = 3.14.",gen(){
-  const r=rnd(1,15);if(Math.random()<.5)return{text:`A circle has radius ${r} cm. What is its circumference in cm? (π = 3.14)`,ans:F(628*r,100),sol:`${2*r} × 3.14 = ${ds(F(628*r,100))}`};
-  const d=rnd(2,30);return{text:`A circle has diameter ${d} cm. What is its circumference in cm? (π = 3.14)`,ans:F(314*d,100),sol:`${d} × 3.14 = ${ds(F(314*d,100))}`}}},
-{k:"circle:a",u:"circle",name:"Area of a circle",idea:"Area = radius × radius × π. Use π = 3.14.",gen(){
-  const r=rnd(1,12);if(Math.random()<.6)return{text:`A circle has radius ${r} cm. What is its area in cm²? (π = 3.14)`,ans:F(314*r*r,100),sol:`${r} × ${r} × 3.14 = ${ds(F(314*r*r,100))}`};
-  const d=rnd(1,10)*2;const rr=d/2;return{text:`A circle has diameter ${d} cm. What is its area in cm²? (π = 3.14)`,ans:F(314*rr*rr,100),sol:`radius ${rr}; ${rr} × ${rr} × 3.14 = ${ds(F(314*rr*rr,100))}`}}},
-{k:"circle:semi",u:"circle",name:"Semicircles and quarter circles",idea:"A semicircle's perimeter is half the circumference plus the diameter. A quarter circle's area is ¼ of the circle's area.",gen(){
-  const r=rnd(2,12);if(Math.random()<.5){const ans=F(314*r+200*r,100);return{text:`A semicircle has radius ${r} cm. What is its perimeter in cm (curved edge plus straight edge)? (π = 3.14)`,ans,sol:`${2*r} × 3.14 ÷ 2 + ${2*r} = ${ds(F(314*r,100))} + ${2*r} = ${ds(ans)}`}}
-  const ans=F(314*r*r,400);return{text:`A quarter circle has radius ${r} cm. What is its area in cm²? (π = 3.14)`,ans,sol:`${r} × ${r} × 3.14 ÷ 4 = ${ds(ans)}`}}},
+{k:"circle:c",u:"circle",name:["Circumference","圓周長"],idea:["Circumference = diameter × π. Use π = 3.14.","圓周長 = 直徑 × 圓周率（3.14）。"],gen(){
+  const r=rnd(1,15);if(Math.random()<.5)return{text:L(`A circle has radius ${r} cm. What is its circumference in cm? (π = 3.14)`,`半徑 ${r} 公分的圓，圓周長是多少公分？（圓周率 3.14）`),ans:F(628*r,100),sol:`${2*r} × 3.14 = ${ds(F(628*r,100))}`};
+  const d=rnd(2,30);return{text:L(`A circle has diameter ${d} cm. What is its circumference in cm? (π = 3.14)`,`直徑 ${d} 公分的圓，圓周長是多少公分？（圓周率 3.14）`),ans:F(314*d,100),sol:`${d} × 3.14 = ${ds(F(314*d,100))}`}}},
+{k:"circle:a",u:"circle",name:["Area of a circle","圓面積"],idea:["Area = radius × radius × π. Use π = 3.14.","圓面積 = 半徑 × 半徑 × 圓周率（3.14）。"],gen(){
+  const r=rnd(1,12);if(Math.random()<.6)return{text:L(`A circle has radius ${r} cm. What is its area in cm²? (π = 3.14)`,`半徑 ${r} 公分的圓，面積是多少平方公分？（圓周率 3.14）`),ans:F(314*r*r,100),sol:`${r} × ${r} × 3.14 = ${ds(F(314*r*r,100))}`};
+  const d=rnd(1,10)*2,rr=d/2;return{text:L(`A circle has diameter ${d} cm. What is its area in cm²? (π = 3.14)`,`直徑 ${d} 公分的圓，面積是多少平方公分？（圓周率 3.14）`),ans:F(314*rr*rr,100),sol:`${L("radius","半徑")} ${rr}; ${rr} × ${rr} × 3.14 = ${ds(F(314*rr*rr,100))}`}}},
+{k:"circle:semi",u:"circle",name:["Semicircles and quarter circles","半圓與四分之一圓"],idea:["A semicircle's perimeter is half the circumference plus the diameter. A quarter circle's area is ¼ of the circle's area.","半圓的周長 = 圓周長的一半 + 直徑；四分之一圓的面積 = 圓面積的 ¼。"],gen(){
+  const r=rnd(2,12);if(Math.random()<.5){const ans=F(314*r+200*r,100);return{text:L(`A semicircle has radius ${r} cm. What is its perimeter in cm (curved edge plus straight edge)? (π = 3.14)`,`半徑 ${r} 公分的半圓，周長（弧長加直徑）是多少公分？（圓周率 3.14）`),ans,sol:`${2*r} × 3.14 ÷ 2 + ${2*r} = ${ds(F(314*r,100))} + ${2*r} = ${ds(ans)}`}}
+  const ans=F(314*r*r,400);return{text:L(`A quarter circle has radius ${r} cm. What is its area in cm²? (π = 3.14)`,`半徑 ${r} 公分的四分之一圓，面積是多少平方公分？（圓周率 3.14）`),ans,sol:`${r} × ${r} × 3.14 ÷ 4 = ${ds(ans)}`}}},
 // ---------- 正比與比例尺 ----------
-{k:"prop:scale",u:"prop",name:"Map scale",idea:"Scale 1 : N means 1 cm on the map is N cm in real life. 100 cm = 1 m, 100,000 cm = 1 km.",gen(){
-  if(Math.random()<.5){const N=pick([1000,2000,5000,10000]),c=rnd(2,15);const m=c*N/100;return{text:`A map has scale 1 : ${N.toLocaleString("en-US")}. Two places are ${c} cm apart on the map. How many meters apart are they really?`,ans:m,sol:`${c} × ${N.toLocaleString("en-US")} = ${(c*N).toLocaleString("en-US")} cm = ${m} m`}}
-  const N=pick([100000,200000,500000]),c=rnd(2,12);const km=c*N/100000;return{text:`A map has scale 1 : ${N.toLocaleString("en-US")}. Two towns are ${c} cm apart on the map. How many kilometers apart are they really?`,ans:km,sol:`${c} × ${N.toLocaleString("en-US")} = ${(c*N).toLocaleString("en-US")} cm = ${km} km`}}},
-{k:"prop:direct",u:"prop",name:"Direct proportion",idea:"If y is directly proportional to x, y ÷ x stays the same. Find the value for 1, then multiply.",gen(){
+{k:"prop:scale",u:"prop",name:["Map scale","比例尺"],idea:["Scale 1 : N means 1 cm on the map is N cm in real life. 100 cm = 1 m, 100,000 cm = 1 km.","比例尺 1 : N 表示圖上 1 公分代表實際 N 公分。100 公分 = 1 公尺，100,000 公分 = 1 公里。"],gen(){
+  if(Math.random()<.5){const N=pick([1000,2000,5000,10000]),c=rnd(2,15);const m=c*N/100;return{text:L(`A map has scale 1 : ${nf(N)}. Two places are ${c} cm apart on the map. How many meters apart are they really?`,`地圖的比例尺是 1 : ${nf(N)}，兩地在圖上相距 ${c} 公分，實際相距多少公尺？`),ans:m,sol:`${c} × ${nf(N)} = ${nf(c*N)} cm = ${m} m`}}
+  const N=pick([100000,200000,500000]),c=rnd(2,12);const km=c*N/100000;return{text:L(`A map has scale 1 : ${nf(N)}. Two towns are ${c} cm apart on the map. How many kilometers apart are they really?`,`地圖的比例尺是 1 : ${nf(N)}，兩個城鎮在圖上相距 ${c} 公分，實際相距多少公里？`),ans:km,sol:`${c} × ${nf(N)} = ${nf(c*N)} cm = ${km} km`}}},
+{k:"prop:direct",u:"prop",name:["Direct proportion","正比"],idea:["If y is directly proportional to x, y ÷ x stays the same. Find the value for 1, then multiply.","y 和 x 成正比時，y ÷ x 不變。先求 1 份是多少，再乘上去。"],gen(){
   const k=rnd(2,15),x1=rnd(2,9),x2=rnd(2,20);const t=TH();
-  const text=t==="soccer"?`${x1} soccer balls cost $${k*x1}. At the same price, how much do ${x2} balls cost (in $)?`:`${x1} chests hold ${k*x1} items. At the same rate, how many items do ${x2} chests hold?`;
-  return{text,ans:k*x2,sol:`One costs/holds ${k*x1} ÷ ${x1} = ${k}; ${k} × ${x2} = ${k*x2}`}}},
+  const text=t==="soccer"?L(`${x1} soccer balls cost $${k*x1}. At the same price, how much do ${x2} balls cost (in $)?`,`${x1} 顆足球要 ${k*x1} 元，同樣的單價，${x2} 顆要多少元？`)
+    :L(`${x1} chests hold ${k*x1} items. At the same rate, how many items do ${x2} chests hold?`,`${x1} 個箱子可以裝 ${k*x1} 件物品，照同樣的比例，${x2} 個箱子可以裝幾件？`);
+  return{text,ans:k*x2,sol:`${k*x1} ÷ ${x1} = ${k}; ${k} × ${x2} = ${k*x2}`}}},
 // ---------- 速率 ----------
-{k:"speed:v",u:"speed",name:"Speed = distance ÷ time",idea:"Speed = distance ÷ time. Keep the units: km and hours give km per hour.",gen(){
-  const t=TH();if(t==="minecraft"){const v=rnd(4,12),s=rnd(5,30);return{text:`A minecart travels ${v*s} blocks in ${s} seconds. What is its speed in blocks per second?`,ans:v,sol:`${v*s} ÷ ${s} = ${v}`}}
-  const v=pick([6,8,10,12,15,18,20,24,30]),m=pick([10,15,20,30,40,45]);const d=F(v*m,60);return{text:`A player cycles to practice at a steady speed and covers ${ds(d)} km in ${m} minutes. What is the speed in km per hour?`,ans:v,sol:`${m} minutes = ${ds(F(m,60))} hour; ${ds(d)} ÷ ${ds(F(m,60))} = ${v} km/h`}}},
-{k:"speed:conv",u:"speed",name:"Converting speed units",idea:"1 km = 1,000 m and 1 hour = 60 minutes. So km/h × 1000 ÷ 60 = m/min.",gen(){
-  if(Math.random()<.5){const v=rnd(1,10)*6;return{text:`${v} km per hour = how many meters per minute?`,ans:v*1000/60,sol:`${v} × 1000 ÷ 60 = ${v*1000/60}`}}
-  const m=rnd(1,15)*50;const ans=F(m*60,1000);return{text:`${m} meters per minute = how many km per hour?`,ans,sol:`${m} × 60 ÷ 1000 = ${ds(ans)}`}}},
-{k:"speed:dt",u:"speed",name:"Distance and time",idea:"Distance = speed × time.  Time = distance ÷ speed.",gen(){
+{k:"speed:v",u:"speed",name:["Speed = distance ÷ time","速率 = 距離 ÷ 時間"],idea:["Speed = distance ÷ time. Keep the units: km and hours give km per hour.","速率 = 距離 ÷ 時間。注意單位：公里和小時算出來是「公里／小時」。"],gen(){
+  const t=TH();if(t==="minecraft"){const v=rnd(4,12),s=rnd(5,30);return{text:L(`A minecart travels ${v*s} blocks in ${s} seconds. What is its speed in blocks per second?`,`礦車 ${s} 秒走了 ${v*s} 格，速率是每秒幾格？`),ans:v,sol:`${v*s} ÷ ${s} = ${v}`}}
+  const v=pick([6,8,10,12,15,18,20,24,30]),m=pick([10,15,20,30,40,45]);const dd=F(v*m,60);return{text:L(`A player cycles to practice at a steady speed and covers ${ds(dd)} km in ${m} minutes. What is the speed in km per hour?`,`一位球員以固定速率騎腳踏車去練球，${m} 分鐘騎了 ${ds(dd)} 公里，時速是多少公里？`),ans:v,sol:`${m} min = ${ds(F(m,60))} h; ${ds(dd)} ÷ ${ds(F(m,60))} = ${v} km/h`}}},
+{k:"speed:conv",u:"speed",name:["Converting speed units","速率的單位換算"],idea:["1 km = 1,000 m and 1 hour = 60 minutes. So km/h × 1000 ÷ 60 = m/min.","1 公里 = 1,000 公尺，1 小時 = 60 分鐘，所以 公里／時 × 1000 ÷ 60 = 公尺／分。"],gen(){
+  if(Math.random()<.5){const v=rnd(1,10)*6;return{text:L(`${v} km per hour = how many meters per minute?`,`時速 ${v} 公里 = 分速多少公尺？`),ans:v*1000/60,sol:`${v} × 1000 ÷ 60 = ${v*1000/60}`}}
+  const m=rnd(1,15)*50;const ans=F(m*60,1000);return{text:L(`${m} meters per minute = how many km per hour?`,`分速 ${m} 公尺 = 時速多少公里？`),ans,sol:`${m} × 60 ÷ 1000 = ${ds(ans)}`}}},
+{k:"speed:dt",u:"speed",name:["Distance and time","距離與時間"],idea:["Distance = speed × time.  Time = distance ÷ speed.","距離 = 速率 × 時間；時間 = 距離 ÷ 速率。"],gen(){
   const v=rnd(3,20)*5,h=rnd(1,4),half=Math.random()<.5;const tt=half?h+0.5:h;
-  if(Math.random()<.5)return{text:`A bus travels at ${v} km per hour for ${half?h+" hours 30 minutes":h+" hours"}. How many km does it travel?`,ans:F(v*(2*h+(half?1:0)),2),sol:`${v} × ${tt} = ${ds(F(v*(2*h+(half?1:0)),2))}`};
-  return{text:`A bus travels ${v*h} km at ${v} km per hour. How many hours does it take?`,ans:h,sol:`${v*h} ÷ ${v} = ${h}`}}},
+  if(Math.random()<.5)return{text:L(`A bus travels at ${v} km per hour for ${half?h+" hours 30 minutes":h+" hours"}. How many km does it travel?`,`公車以時速 ${v} 公里行駛 ${half?h+" 小時 30 分鐘":h+" 小時"}，一共行駛多少公里？`),ans:F(v*(2*h+(half?1:0)),2),sol:`${v} × ${tt} = ${ds(F(v*(2*h+(half?1:0)),2))}`};
+  return{text:L(`A bus travels ${v*h} km at ${v} km per hour. How many hours does it take?`,`公車以時速 ${v} 公里行駛 ${v*h} 公里，需要幾小時？`),ans:h,sol:`${v*h} ÷ ${v} = ${h}`}}},
 // ---------- 柱體 ----------
-{k:"solid:prism",u:"solid",name:"Volume of prisms",idea:"Volume of any prism = area of the base × height.",gen(){
-  const b=rnd(2,12),h=rnd(2,10),H=rnd(2,15);if(Math.random()<.5){const ans=F(b*h*H,2);return{text:`A prism has a triangular base with base ${b} cm and height ${h} cm. The prism is ${H} cm tall. What is its volume in cm³?`,ans,sol:`Base area ${b} × ${h} ÷ 2 = ${ds(F(b*h,2))}; × ${H} = ${ds(ans)}`}}
-  const a=rnd(2,12),c=rnd(2,12);return{text:`A box is ${a} cm long, ${c} cm wide and ${H} cm tall. What is its volume in cm³?`,ans:a*c*H,sol:`${a} × ${c} × ${H} = ${a*c*H}`}}},
-{k:"solid:cyl",u:"solid",name:"Volume of cylinders",idea:"Cylinder volume = radius × radius × π × height. Use π = 3.14.",gen(){
-  const r=rnd(1,10),h=rnd(2,20);const ans=F(314*r*r*h,100);return{text:`A cylinder has radius ${r} cm and height ${h} cm. What is its volume in cm³? (π = 3.14)`,ans,sol:`${r} × ${r} × 3.14 × ${h} = ${ds(ans)}`}}},
-{k:"solid:surf",u:"solid",name:"Surface area of boxes",idea:"A box has 3 pairs of matching faces: surface area = 2 × (lw + lh + wh).",gen(){
-  if(Math.random()<.4){const a=rnd(2,15);return{text:`A cube has edges of ${a} cm. What is its surface area in cm²?`,ans:6*a*a,sol:`6 × ${a} × ${a} = ${6*a*a}`}}
-  const l=rnd(2,15),w=rnd(2,12),h=rnd(2,10);const ans=2*(l*w+l*h+w*h);return{text:`A box is ${l} cm × ${w} cm × ${h} cm. What is its surface area in cm²?`,ans,sol:`2 × (${l*w} + ${l*h} + ${w*h}) = ${ans}`}}},
+{k:"solid:prism",u:"solid",name:["Volume of prisms","角柱體積"],idea:["Volume of any prism = area of the base × height.","柱體體積 = 底面積 × 高。"],gen(){
+  const b=rnd(2,12),h=rnd(2,10),H=rnd(2,15);if(Math.random()<.5){const ans=F(b*h*H,2);return{text:L(`A prism has a triangular base with base ${b} cm and height ${h} cm. The prism is ${H} cm tall. What is its volume in cm³?`,`三角柱的底面是底 ${b} 公分、高 ${h} 公分的三角形，柱高 ${H} 公分，體積是多少立方公分？`),ans,sol:`${b} × ${h} ÷ 2 = ${ds(F(b*h,2))}; × ${H} = ${ds(ans)}`}}
+  const a=rnd(2,12),c=rnd(2,12);return{text:L(`A box is ${a} cm long, ${c} cm wide and ${H} cm tall. What is its volume in cm³?`,`長方體長 ${a} 公分、寬 ${c} 公分、高 ${H} 公分，體積是多少立方公分？`),ans:a*c*H,sol:`${a} × ${c} × ${H} = ${a*c*H}`}}},
+{k:"solid:cyl",u:"solid",name:["Volume of cylinders","圓柱體積"],idea:["Cylinder volume = radius × radius × π × height. Use π = 3.14.","圓柱體積 = 半徑 × 半徑 × 3.14 × 高。"],gen(){
+  const r=rnd(1,10),h=rnd(2,20);const ans=F(314*r*r*h,100);return{text:L(`A cylinder has radius ${r} cm and height ${h} cm. What is its volume in cm³? (π = 3.14)`,`圓柱的底面半徑 ${r} 公分、高 ${h} 公分，體積是多少立方公分？（圓周率 3.14）`),ans,sol:`${r} × ${r} × 3.14 × ${h} = ${ds(ans)}`}}},
+{k:"solid:surf",u:"solid",name:["Surface area of boxes","長方體表面積"],idea:["A box has 3 pairs of matching faces: surface area = 2 × (lw + lh + wh).","長方體有 3 組相同的面：表面積 = 2 ×（長×寬 + 長×高 + 寬×高）。"],gen(){
+  if(Math.random()<.4){const a=rnd(2,15);return{text:L(`A cube has edges of ${a} cm. What is its surface area in cm²?`,`邊長 ${a} 公分的正方體，表面積是多少平方公分？`),ans:6*a*a,sol:`6 × ${a} × ${a} = ${6*a*a}`}}
+  const l=rnd(2,15),w=rnd(2,12),h=rnd(2,10);const ans=2*(l*w+l*h+w*h);return{text:L(`A box is ${l} cm × ${w} cm × ${h} cm. What is its surface area in cm²?`,`長方體長 ${l}、寬 ${w}、高 ${h} 公分，表面積是多少平方公分？`),ans,sol:`2 × (${l*w} + ${l*h} + ${w*h}) = ${ans}`}}},
 // ---------- 用文字符號表示數 ----------
-{k:"alg:solve",u:"alg",name:"Finding the unknown",idea:"Undo the operation: + ↔ −, × ↔ ÷. If x × 6 = 42, then x = 42 ÷ 6.",gen(){
+{k:"alg:solve",u:"alg",name:["Finding the unknown","求未知數"],idea:["Undo the operation: + ↔ −, × ↔ ÷. If x × 6 = 42, then x = 42 ÷ 6.","用相反的運算：+ ↔ −、× ↔ ÷。若 x × 6 = 42，則 x = 42 ÷ 6。"],gen(){
   const x=rnd(2,40),a=rnd(2,25),t=rnd(0,3);
   if(t===0)return{text:`x + ${a} = ${x+a}.  x = ?`,ans:x,sol:`x = ${x+a} − ${a} = ${x}`};
-  if(t===1)return{text:`x − ${a} = ${x}.  x = ?`.replace(`= ${x}.`,`= ${x}.`).replace(`x − ${a} = ${x}.`,`x − ${a} = ${x}.`),ans:x+a,sol:`x = ${x} + ${a} = ${x+a}`};
+  if(t===1)return{text:`x − ${a} = ${x}.  x = ?`,ans:x+a,sol:`x = ${x} + ${a} = ${x+a}`};
   const m=rnd(2,12);if(t===2)return{text:`${m} × x = ${m*x}.  x = ?`,ans:x,sol:`x = ${m*x} ÷ ${m} = ${x}`};
   return{text:`x ÷ ${m} = ${x}.  x = ?`,ans:m*x,sol:`x = ${x} × ${m} = ${m*x}`}}},
-{k:"alg:sub",u:"alg",name:"Evaluating expressions",idea:"Put the number in place of the letter, then follow the order of operations.",gen(){
-  const x=rnd(2,12),a=rnd(2,9),b=rnd(1,30);if(Math.random()<.5)return{text:`If x = ${x}, what is ${a} × x + ${b}?`,ans:a*x+b,sol:`${a} × ${x} + ${b} = ${a*x+b}`};
-  const c=rnd(1,x-1)||1;return{text:`If x = ${x}, what is (x − ${c}) × ${a}?`,ans:(x-c)*a,sol:`(${x} − ${c}) × ${a} = ${(x-c)*a}`}}},
-{k:"alg:write",u:"alg",name:"Writing and solving from words",idea:"Write the story as an equation with x, then solve it.",gen(){
+{k:"alg:sub",u:"alg",name:["Evaluating expressions","代入求值"],idea:["Put the number in place of the letter, then follow the order of operations.","把數字代入字母的位置，再依照運算順序計算。"],gen(){
+  const x=rnd(2,12),a=rnd(2,9),b=rnd(1,30);if(Math.random()<.5)return{text:L(`If x = ${x}, what is ${a} × x + ${b}?`,`當 x = ${x} 時，${a} × x + ${b} = ?`),ans:a*x+b,sol:`${a} × ${x} + ${b} = ${a*x+b}`};
+  const c=rnd(1,x-1)||1;return{text:L(`If x = ${x}, what is (x − ${c}) × ${a}?`,`當 x = ${x} 時，(x − ${c}) × ${a} = ?`),ans:(x-c)*a,sol:`(${x} − ${c}) × ${a} = ${(x-c)*a}`}}},
+{k:"alg:write",u:"alg",name:["Writing and solving from words","列式並求解"],idea:["Write the story as an equation with x, then solve it.","用 x 把題意列成算式，再解出 x。"],gen(){
   const t=TH(),per=rnd(2,9),x=rnd(3,15),extra=rnd(1,20);const tot=per*x+extra;
-  const text=t==="soccer"?`A coach buys some balls at $${per} each and one pump for $${extra}. The total is $${tot}. How many balls did the coach buy?`:`You craft some torches using ${per} sticks each, and keep ${extra} sticks left over. You started with ${tot} sticks. How many torches did you craft?`;
+  const text=t==="soccer"?L(`A coach buys some balls at $${per} each and one pump for $${extra}. The total is $${tot}. How many balls did the coach buy?`,`教練買了一些每顆 ${per} 元的球，再加一個 ${extra} 元的打氣筒，共花了 ${tot} 元。教練買了幾顆球？`)
+    :L(`You craft some torches using ${per} sticks each, and keep ${extra} sticks left over. You started with ${tot} sticks. How many torches did you craft?`,`你有 ${tot} 根木棒，每支火把用掉 ${per} 根，做完後還剩 ${extra} 根。你做了幾支火把？`);
   return{text,ans:x,sol:`${per} × x + ${extra} = ${tot} → ${per} × x = ${tot-extra} → x = ${x}`}}},
 // ---------- 圓形圖 ----------
-{k:"data:pie",u:"data",name:"Circle graphs",idea:"A whole circle is 100% and 360°. p% of the circle is 360 × p ÷ 100 degrees.",gen(){
-  const p=pick([5,10,15,20,25,30,35,40,45,50,60,75]);if(Math.random()<.5){const N=rnd(2,15)*20;const ans=F(N*p,100);return{text:`In a survey of ${N} students, ${p}% chose soccer as their favorite sport. How many students is that?`,ans,sol:`${N} × ${p} ⁄ 100 = ${ds(ans)}`}}
-  return{text:`In a circle graph, a section is ${p}% of the whole. How many degrees is its angle?`,ans:F(360*p,100),sol:`360 × ${p} ⁄ 100 = ${ds(F(360*p,100))}`}}},
+{k:"data:pie",u:"data",name:["Circle graphs","圓形圖"],idea:["A whole circle is 100% and 360°. p% of the circle is 360 × p ÷ 100 degrees.","整個圓是 100%，也是 360°。p% 的扇形角度 = 360 × p ÷ 100。"],gen(){
+  const p=pick([5,10,15,20,25,30,35,40,45,50,60,75]);if(Math.random()<.5){const N=rnd(2,15)*20;const ans=F(N*p,100);return{text:L(`In a survey of ${N} students, ${p}% chose soccer as their favorite sport. How many students is that?`,`調查 ${N} 位學生，有 ${p}% 最喜歡足球，是幾位學生？`),ans,sol:`${N} × ${p} ⁄ 100 = ${ds(ans)}`}}
+  return{text:L(`In a circle graph, a section is ${p}% of the whole. How many degrees is its angle?`,`圓形圖中某一部分佔 ${p}%，它的圓心角是幾度？`),ans:F(360*p,100),sol:`360 × ${p} ⁄ 100 = ${ds(F(360*p,100))}`}}},
 ];
 const IDX={};SKILLS.forEach((s,i)=>IDX[s.k]=i);
 
-// ===== Math Pitch — Taiwan Grade 6 math practice with spaced repetition =====
-const APP_VERSION="2026-11-10a";
-const KEY="mathpitch-v1";
+// ===== Shared engine for Math Prep / Math Pitch — bilingual (EN / 繁中). Expects CFG, SKILLS, UNITS, SEM1, SEM2, L, F, fs. =====
+const {APPID,KEY,APP_VERSION}=CFG;
 const DAY=86400000;
 const INTERVALS=[0,1,3,7,14,30];
-const LEVELS=[[0,"Rookie","🧢"],[250,"Academy","⚽"],[600,"Starter","👟"],[1200,"Playmaker","⭐"],[2200,"Captain","🅲"],[3600,"Golden Boot","🥇"],[5500,"Legend","🏆"]];
-const BADGES=[
- ["first","First match","⚽","Finish your first session"],
- ["checked","Scouted","🔍","Finish a unit check"],
- ["s7","7-day streak","🔥","Study 7 days in a row"],
- ["s21","21-day streak","🌋","Study 21 days in a row"],
- ["sem1","六上 covered","🧱","Every Grade 5 and 六上 skill learned"],
- ["sem2","六下 covered","💎","Every 六下 skill learned"],
- ["m20","20 mastered","🥅","Master 20 skills"],
- ["perfect","Perfect session","⭐","A session with zero mistakes (8+ questions)"],
-];
+const LEVELS=CFG.levels, BADGES=CFG.badges;
 
 // ---------- state ----------
 const todayKey=d=>{d=d||new Date();return d.getFullYear()+"-"+String(d.getMonth()+1).padStart(2,"0")+"-"+String(d.getDate()).padStart(2,"0")};
-const fresh=()=>({v:1,name:"",goal:"2027-06-30",perDay:2,xp:0,streak:0,best:0,last:"",freezeUsed:"",badges:[],w:{},hist:{},check:{},reportUrl:"",pending:false,theme:"mix",updated:0});
+const fresh=()=>({v:1,name:"",goal:CFG.goal,perDay:2,xp:0,streak:0,best:0,last:"",freezeUsed:"",badges:[],w:{},hist:{},check:{},theme:"mix",lang:CFG.lang||"en",reportUrl:"",token:"",pending:false,updated:0});
 let S=fresh();
 function load(){try{const j=localStorage.getItem(KEY);if(j)S=Object.assign(fresh(),JSON.parse(j))}catch(e){}}
 function save(){S.updated=Date.now();try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}
 const ws=k=>S.w[k]||{b:0,d:0,l:0,c:0};
 const mastered=k=>(S.w[k]||{}).b>=4;
 const learned=k=>(S.w[k]||{}).b>=1;
+const nm=s=>L(s.name[0],s.name[1]);
+const idea=s=>L(s.idea[0],s.idea[1]);
+const unitName=u=>L(u[1],u[2]);
+const unitFull=u=>L(`${u[1]} · ${u[2]}`,u[2]);
 function dueList(){const now=Date.now();return SKILLS.map(s=>s.k).filter(k=>ws(k).b>0&&ws(k).d<=now)}
 function unseen(){return SKILLS.filter(s=>ws(s.k).b===0).map(s=>s.k)}
 function masteredCount(){return SKILLS.filter(s=>mastered(s.k)).length}
@@ -330,27 +343,54 @@ function touchStreak(){const t=todayKey();if(S.last===t)return;const y=todayKey(
   if(S.last===y)S.streak++;else if(S.last===y2&&S.freezeUsed!==weekKey()){S.streak++;S.freezeUsed=weekKey()}else S.streak=1;S.last=t;S.best=Math.max(S.best,S.streak)}
 function logHist(k,n){const t=todayKey();S.hist[t]=S.hist[t]||{q:0,ok:0,nw:0,xp:0};S.hist[t][k]=(S.hist[t][k]||0)+n}
 function daysToGoal(){return Math.ceil((new Date(S.goal+"T00:00:00")-new Date())/DAY)}
-function level(){let L=LEVELS[0],next=null;for(let i=0;i<LEVELS.length;i++)if(S.xp>=LEVELS[i][0]){L=LEVELS[i];next=LEVELS[i+1]||null}return{L,next}}
+function level(){let Lv=LEVELS[0],next=null;for(let i=0;i<LEVELS.length;i++)if(S.xp>=LEVELS[i][0]){Lv=LEVELS[i];next=LEVELS[i+1]||null}return{Lv,next}}
+const lvName=l=>L(l[1],l[2]);
 const unitOf=k=>UNITS.find(u=>u[0]===SKILLS[IDX[k]].u);
-const semSkills=sem=>SKILLS.filter(s=>{const u=UNITS.find(x=>x[0]===s.u);return sem==="上"?(u[3]==="六上"||u[3]==="五年級"):u[3]==="六下"});
-function addBadge(id){if(!S.badges.includes(id)){S.badges.push(id);toast("🏅 "+BADGES.find(b=>b[0]===id)[1])}}
+const semSkills=w=>SKILLS.filter(s=>(w===1?SEM1:SEM2).includes(UNITS.find(x=>x[0]===s.u)[3]));
+const bName=b=>L(b[1],b[2]);
+function addBadge(id){if(!S.badges.includes(id)){S.badges.push(id);toast("🏅 "+bName(BADGES.find(b=>b[0]===id)))}}
 function checkBadges(){if(S.streak>=7)addBadge("s7");if(S.streak>=21)addBadge("s21");if(masteredCount()>=20)addBadge("m20");
-  if(semSkills("上").every(s=>learned(s.k)))addBadge("sem1");if(semSkills("下").every(s=>learned(s.k)))addBadge("sem2")}
+  if(semSkills(1).every(s=>learned(s.k)))addBadge("sem1");if(semSkills(2).every(s=>learned(s.k)))addBadge("sem2")}
 function pace(){const left=unseen().length,d=daysToGoal(),days=Math.max(1,Math.round((d-14)*6/7));return{left,d,rec:Math.min(6,Math.max(1,Math.ceil(left/days)))}}
 
 // ---------- answers ----------
 function toRat(x){if(typeof x==="number")return{n:x,d:1};return x}
 function parseAns(str){str=str.replace(/−/g,"-").trim();if(!str)return null;
   if(/^-?\d+\/-?\d+$/.test(str)){const [a,b]=str.split("/").map(Number);if(b===0)return null;return F(a,b)}
-  if(/^-?\d*\.?\d+$/.test(str)){const neg=str.startsWith("-");const t=str.replace("-","");const [i,f=""]=t.split(".");const d=10**f.length;return F((neg?-1:1)*(Number(i||0)*d+Number(f||0)),d)}
+  if(/^-?\d*\.?\d+$/.test(str)){const ng=str.startsWith("-");const t=str.replace("-","");const [i,f=""]=t.split(".");const d=10**f.length;return F((ng?-1:1)*(Number(i||0)*d+Number(f||0)),d)}
   return null}
 function sameAns(v,ans){const a=toRat(ans);return v&&v.n*a.d===a.n*v.d}
+const showAns=a=>typeof ds==="function"?ds(a):fs(a);
 
 // ---------- parent report ----------
 function summary(){return{name:S.name,xp:S.xp,streak:S.streak,mastered:masteredCount(),seen:SKILLS.filter(s=>learned(s.k)).length,total:SKILLS.length,due:dueList().length,last:S.last}}
+// ---------- compact backup + restore from sheet ----------
+const DAYMS=86400000;
+const _T=(en,zh)=>(typeof L==="function"?L(en,zh):en);
+function packState(s){const o=Object.assign({},s);delete o.w;delete o.intro;delete o.pending;
+  const cut=Date.now()-30*DAYMS,h={};Object.keys(s.hist||{}).forEach(k=>{if(new Date(k+"T00:00:00").getTime()>=cut)h[k]=s.hist[k]});o.hist=h;
+  const keys=Object.keys(s.w||{});o.W=keys.map(k=>{const x=s.w[k];return[k,x.b||0,Math.floor((x.d||0)/DAYMS),x.l||0,x.c||0]});
+  o.ik=keys.length&&keys.every(k=>/^\d+$/.test(k))?"n":"s";o.app=APPID;
+  const enc=x=>"z1."+btoa(unescape(encodeURIComponent(JSON.stringify(x))));let str=enc(o);if(str.length>48000){o.hist={};str=enc(o)}return str}
+function unpackState(str){str=String(str||"").trim();
+  if(str.startsWith("z1.")){const o=JSON.parse(decodeURIComponent(escape(atob(str.slice(3)))));if(o.app&&o.app!==APPID)throw new Error("app");
+    const w={};(o.W||[]).forEach(r=>{w[r[0]]={b:r[1],d:r[2]*DAYMS,l:r[3],c:r[4],t:[]}});
+    o.intro=Object.keys(w).filter(k=>w[k].b>0).map(k=>o.ik==="n"?Number(k):k);delete o.W;delete o.ik;o.w=w;return o}
+  const o=JSON.parse(decodeURIComponent(escape(atob(str))));if(!o.w)throw new Error("format");return o}
+async function restoreFromSheet(){const url=(($("#ru")||{}).value||S.reportUrl||"").trim(),tk=(($("#tk")||{}).value||"").trim(),nm=(($("#nm")||{}).value||S.name||"").trim();
+  if(!url){alert(_T("Paste the sheet URL first.","請先貼上試算表網址。"));return}
+  if(!nm){alert(_T("Enter the name used in the reports first.","請先輸入報告裡使用的名字。"));return}
+  let j;try{const r=await fetch(url+(url.includes("?")?"&":"?")+"name="+encodeURIComponent(nm)+"&app="+APPID+(tk?"&token="+encodeURIComponent(tk):""));j=await r.json()}
+  catch(e){alert(_T("Couldn't read the sheet. Check the URL, and make sure the Apps Script was updated and redeployed as a new version.","無法讀取試算表。請確認網址正確，並確認 Apps Script 已更新並重新部署為新版本。"));return}
+  if(j.error==="denied"){alert(_T("The sheet password doesn't match.","試算表密碼不正確。"));return}
+  if(!j.found){alert(_T("No backup for "+nm+" in this app yet. Finish one session with the report turned on first.","這個 App 還沒有 "+nm+" 的備份。請先在開啟報告的狀態下完成一次練習。"));return}
+  let o;try{o=unpackState(j.backup)}catch(e){alert(_T("That backup belongs to a different app or is damaged.","這份備份屬於其他 App，或已損壞。"));return}
+  if(!confirm(_T(`Found a backup from ${j.received}: ${o.xp} XP, ${o.streak}-day streak. Replace the progress on this device?`,`找到 ${j.received} 的備份：${o.xp} XP、連續 ${o.streak} 天。要用它取代這台裝置上的進度嗎？`)))return;
+  S=Object.assign(fresh(),o);S.reportUrl=url;S.token=tk;S.name=S.name||nm;save();toast(_T("Restored","已還原"));tab="today";render()}
+
 function report(){if(!S.reportUrl)return;const t=todayKey(),h=S.hist[t]||{q:0,ok:0,nw:0,xp:0};
-  const weak=Object.keys(S.w).filter(k=>IDX[k]!==undefined&&S.w[k].l>0&&S.w[k].b<=2).sort((a,b)=>S.w[b].l-S.w[a].l).slice(0,10).map(k=>SKILLS[IDX[k]].name+"("+S.w[k].l+")").join(", ");
-  const body=JSON.stringify(Object.assign(summary(),{date:t,todayQ:h.q,todayAcc:h.q?Math.round(h.ok/h.q*100):"",todayNew:h.nw,todayXP:h.xp,weak,backup:btoa(unescape(encodeURIComponent(JSON.stringify(S))))}));
+  const weak=Object.keys(S.w).filter(k=>IDX[k]!==undefined&&S.w[k].l>0&&S.w[k].b<=2).sort((a,b)=>S.w[b].l-S.w[a].l).slice(0,10).map(k=>SKILLS[IDX[k]].name[1]+"("+S.w[k].l+")").join(", ");
+  const body=JSON.stringify(Object.assign(summary(),{app:APPID,token:S.token||"",date:t,todayQ:h.q,todayAcc:h.q?Math.round(h.ok/h.q*100):"",todayNew:h.nw,todayXP:h.xp,weak,backup:packState(S)}));
   S.pending=true;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
   fetch(S.reportUrl,{method:"POST",mode:"no-cors",headers:{"Content-Type":"text/plain"},body}).then(()=>{S.pending=false;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}}).catch(()=>{})}
 
@@ -360,38 +400,43 @@ const esc=s=>String(s).replace(/[&<>"]/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",
 const shuffle=a=>{a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
 function toast(m){const d=document.createElement("div");d.className="xp-pop";d.style.fontSize="22px";d.style.top="28%";d.textContent=m;document.body.appendChild(d);setTimeout(()=>d.remove(),1100)}
 function addXP(n){S.xp+=n;logHist("xp",n);const p=document.createElement("div");p.className="xp-pop";p.textContent="+"+n+" XP";document.body.appendChild(p);setTimeout(()=>p.remove(),900);updateBoard()}
-function updateBoard(){$("#sbStreak").textContent=S.streak;$("#sbXP").textContent=S.xp;$("#sbDue").textContent=dueList().length;$("#sbM").textContent=masteredCount()+"/"+SKILLS.length}
+const NAV={today:["Today","今天"],skills:["Skills","技能"],plan:["Plan","計畫"],stats:["Stats","統計"],settings:["Setup","設定"]};
+function updateBoard(){$("#sbStreak").textContent=S.streak;$("#sbXP").textContent=S.xp;$("#sbDue").textContent=dueList().length;$("#sbM").textContent=masteredCount()+"/"+SKILLS.length;
+  const lb=document.querySelectorAll(".board .l");[["day streak","連續天數"],["XP","經驗值"],["due today","今日待複習"],["mastered","已熟練"]].forEach((x,i)=>{if(lb[i])lb[i].textContent=L(x[0],x[1])});
+  document.querySelectorAll("nav.tabs button").forEach(b=>{const s=b.querySelector(".tx");if(s)s.textContent=L(...NAV[b.dataset.t])});document.documentElement.lang=S.lang==="zh"?"zh-Hant":"en"}
 function render(){inQuiz=false;kpHandler=null;updateBoard();document.querySelectorAll("nav.tabs button").forEach(b=>b.classList.toggle("on",b.dataset.t===tab));({today:rToday,skills:rSkills,plan:rPlan,stats:rStats,settings:rSettings})[tab]();window.scrollTo(0,0)}
-document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{if(inQuiz&&!confirm("Leave this session? Answers so far are saved."))return;tab=b.dataset.t;render()});
-const unitTag=u=>`<span class="pill">${esc(u[2])} · ${esc(u[3])}</span>`;
+document.querySelectorAll("nav.tabs button").forEach(b=>b.onclick=()=>{if(inQuiz&&!confirm(L("Leave this session? Answers so far are saved.","要離開這次練習嗎？已作答的部分都已儲存。")))return;tab=b.dataset.t;render()});
+const unitTag=u=>`<span class="pill">${esc(L(u[2],u[2]))} · ${esc(u[3])}</span>`;
+const langBtn=()=>`<button class="chip lg" id="lgBtn" aria-label="Language">${S.lang==="zh"?"EN":"中文"}</button>`;
+function bindLang(){const b=$("#lgBtn");if(b)b.onclick=()=>{S.lang=S.lang==="zh"?"en":"zh";save();render()}}
 
 // keypad
 let kpHandler=null,kpVal="";
-function keypadHTML(){const k=["1","2","3","/","4","5","6",".","7","8","9","−"];return `<div class="ans" id="ans">&nbsp;</div><div class="kp">${k.map(x=>`<button class="key${x==="/"||x==="."||x==="−"?" op":""}" data-k="${x}">${x}</button>`).join("")}<button class="key w2" data-k="0">0</button><button class="key w2 op" data-k="⌫">⌫</button></div><button class="btn go" id="goBtn">Check ✓</button><p class="kb" style="text-align:center">Fractions like 7/2 are fine (write mixed numbers that way). Decimals work too.</p>`}
+function keypadHTML(){const k=["1","2","3","/","4","5","6",".","7","8","9","−"];return `<div class="ans" id="ans">&nbsp;</div><div class="kp">${k.map(x=>`<button class="key${x==="/"||x==="."||x==="−"?" op":""}" data-k="${x}">${x}</button>`).join("")}<button class="key w2" data-k="0">0</button><button class="key w2 op" data-k="⌫">⌫</button></div><button class="btn go" id="goBtn">${L("Check ✓","確認 ✓")}</button><p class="kb" style="text-align:center">${L(CFG.kpHint[0],CFG.kpHint[1])}</p>`}
 function bindKeypad(onSubmit){kpVal="";kpHandler=onSubmit;const show=()=>{$("#ans").innerHTML=kpVal?esc(kpVal):"&nbsp;"};
   document.querySelectorAll(".key").forEach(b=>b.onclick=()=>press(b.dataset.k));$("#goBtn").onclick=()=>press("ok");show()}
-function press(k){if(!kpHandler)return;if(k==="ok"){const v=parseAns(kpVal);if(v)kpHandler(v);else if(kpVal)toast("Check the format");return}
+function press(k){if(!kpHandler)return;if(k==="ok"){const v=parseAns(kpVal);if(v)kpHandler(v);else if(kpVal)toast(L("Check the format","請檢查格式"));return}
   if(k==="⌫")kpVal=kpVal.slice(0,-1);else if(k==="−"){kpVal=kpVal.startsWith("−")?kpVal.slice(1):"−"+kpVal}else if(kpVal.length<10)kpVal+=k;$("#ans").innerHTML=kpVal?esc(kpVal):"&nbsp;"}
 document.addEventListener("keydown",e=>{if(!kpHandler)return;if(/^[0-9]$/.test(e.key))press(e.key);else if(e.key==="-")press("−");else if(e.key==="/"||e.key===".")press(e.key);else if(e.key==="Backspace")press("⌫");else if(e.key==="Enter"){e.preventDefault();press("ok")}});
 
 function learnCard(k){const s=SKILLS[IDX[k]],u=unitOf(k),ex=s.gen();
-  return `<p class="muted">New skill ${unitTag(u)}</p><h2>${esc(s.name)}</h2><div class="hint" style="margin-top:12px">💡 ${esc(s.idea)}</div>
-  <div class="ex"><p class="muted" style="margin:0 0 4px">Worked example</p><p class="qtext">${esc(ex.text)}</p><p><b>Answer: ${esc(fs(ex.ans))}</b></p><p class="muted">${esc(ex.sol)}</p></div>`}
+  return `<p class="muted">${L("New skill","新技能")} ${unitTag(u)}</p><h2>${esc(nm(s))}</h2><div class="hint" style="margin-top:12px">💡 ${esc(idea(s))}</div>
+  <div class="ex"><p class="muted" style="margin:0 0 4px">${L("Worked example","範例")}</p><p class="qtext">${esc(ex.text)}</p><p><b>${L("Answer","答案")}: ${esc(showAns(ex.ans))}</b></p><p class="muted">${esc(ex.sol)}</p></div>`}
 
 // ---------- today ----------
 function nextCheckUnit(){return UNITS.find(u=>SKILLS.some(s=>s.u===u[0]&&!S.check[s.k]&&ws(s.k).b===0))}
 function rToday(){const due=dueList(),h=S.hist[todayKey()]||{nw:0},un=unseen();const nNew=Math.min(Math.max(0,S.perDay-(h.nw||0)),un.length);
-  const {L,next}=level();const p=next?Math.round((S.xp-L[0])/(next[0]-L[0])*100):100;const done=due.length===0&&nNew===0;const nc=nextCheckUnit();
-  main.innerHTML=`<div class="lvl"><div class="ring" style="--p:${p}%"><i>${L[2]}</i></div><div><h2>${esc(S.name||"Student")} · ${L[1]}</h2><div class="muted">${next?`${next[0]-S.xp} XP to ${next[1]}`:"Max level"}</div></div></div>
-  ${nc?`<div class="note" style="border-style:solid;border-color:var(--gold)"><b>Unit check: ${esc(nc[1])}</b> <span class="muted">(${esc(nc[2])})</span><br>One question per skill. Skills you get right are marked as known, so practice goes only to the gaps.<button class="btn gold" style="margin-top:10px" id="chkBtn">Start unit check</button></div>`:""}
-  <div class="rink"><h1>${done?"Full time ✔":"Today’s match"}</h1>
-  <p class="muted">${done?"Reviews are done and new skills are in. Come back tomorrow, or try a bonus round.":`<b>${Math.min(due.length,15)}</b> reviews due · <b>${nNew}</b> new skill${nNew===1?"":"s"} · about ${Math.max(5,Math.ceil(Math.min(due.length,15)*1+nNew*4))} min`}</p>
-  <p class="muted" style="margin-top:12px;font-size:15px">Word problems today come from:</p><div class="chips">${[["soccer","⚽ Soccer"],["minecraft","⛏️ Minecraft"],["mix","🔀 Mix"]].map(t=>`<button class="chip th ${S.theme===t[0]?"on":""}" data-th="${t[0]}">${t[1]}</button>`).join("")}</div>
-  <div class="row" style="margin-top:8px"><button class="btn" id="startBtn" ${done?"disabled":""}>${due.length?"Start reviews + new skills":"Start new skills"}</button>
-  <button class="btn gold" id="bonusBtn" ${SKILLS.filter(s=>learned(s.k)).length<3?"disabled":""}>Bonus round: 5 mixed questions</button>
-  ${done&&un.length?`<button class="btn ghost" id="extraBtn">Learn 1 extra skill</button>`:""}</div></div>
-  <div class="blueline"><h3>How this works</h3><p class="muted" style="font-size:15px">Each skill comes back after 1 → 3 → 7 → 14 → 30 days, with a new problem every time. Right answer: it moves up. Wrong: you see the full solution, try a similar problem, and it comes back tomorrow. No XP is ever taken away.</p></div>`;
-  document.querySelectorAll(".chip.th").forEach(c=>c.onclick=()=>{S.theme=c.dataset.th;save();rToday()});
+  const {Lv,next}=level();const p=next?Math.round((S.xp-Lv[0])/(next[0]-Lv[0])*100):100;const done=due.length===0&&nNew===0;const nc=nextCheckUnit();const nd=Math.min(due.length,15);
+  main.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center;flex-wrap:nowrap"><div class="lvl"><div class="ring" style="--p:${p}%"><i>${Lv[3]}</i></div><div><h2>${esc(S.name||L("Student","同學"))} · ${lvName(Lv)}</h2><div class="muted">${next?L(`${next[0]-S.xp} XP to ${next[1]}`,`再 ${next[0]-S.xp} XP 升到「${next[2]}」`):L("Max level","最高等級")}</div></div></div>${langBtn()}</div>
+  ${nc?`<div class="note" style="border-style:solid;border-color:var(--gold)"><b>${L("Unit check","單元檢測")}: ${esc(unitName(nc))}</b><br>${L("One question per skill. Skills you get right are marked as known, so practice goes only to the gaps.","每個技能一題。答對的標記為已會，之後只練不會的部分。")}<button class="btn gold" style="margin-top:10px" id="chkBtn">${L("Start unit check","開始單元檢測")}</button></div>`:""}
+  <div class="rink"><h1>${done?L(...CFG.doneTitle):L(...CFG.todayTitle)}</h1>
+  <p class="muted">${done?L("Reviews are done and new skills are in. Come back tomorrow, or try a bonus round.","今天的複習和新技能都完成了。明天再來，或玩一下加分題。"):L(`<b>${nd}</b> reviews due · <b>${nNew}</b> new skill${nNew===1?"":"s"} · about ${Math.max(5,nd+nNew*4)} min`,`待複習 <b>${nd}</b> 題 · 新技能 <b>${nNew}</b> 個 · 約 ${Math.max(5,nd+nNew*4)} 分鐘`)}</p>
+  ${CFG.themes?`<p class="muted" style="margin-top:12px;font-size:15px">${L("Word problems today come from:","今天應用題的情境：")}</p><div class="chips">${CFG.themes.map(t=>`<button class="chip th ${S.theme===t[0]?"on":""}" data-th="${t[0]}">${L(t[1],t[2])}</button>`).join("")}</div>`:""}
+  <div class="row" style="margin-top:10px"><button class="btn" id="startBtn" ${done?"disabled":""}>${due.length?L("Start reviews + new skills","開始複習＋新技能"):L("Start new skills","開始學新技能")}</button>
+  <button class="btn gold" id="bonusBtn" ${SKILLS.filter(s=>learned(s.k)).length<3?"disabled":""}>${L("Bonus round: 5 mixed questions","加分題：混合 5 題")}</button>
+  ${done&&un.length?`<button class="btn ghost" id="extraBtn">${L("Learn 1 extra skill","多學 1 個技能")}</button>`:""}</div></div>
+  <div class="blueline"><h3>${L("How this works","怎麼運作")}</h3><p class="muted" style="font-size:15px">${L("Each skill comes back after 1 → 3 → 7 → 14 → 30 days, with a new problem every time. Right answer: it moves up. Wrong: you see the full solution, try a similar problem, and it comes back tomorrow. No XP is ever taken away.","每個技能會在 1 → 3 → 7 → 14 → 30 天後再出現，每次都是新題目。答對就往上升一級；答錯會看到完整解法、馬上再做一題類似的，明天再複習。經驗值永遠不會被扣。")}</p></div>`;
+  bindLang();document.querySelectorAll(".chip.th").forEach(c=>c.onclick=()=>{S.theme=c.dataset.th;save();rToday()});
   $("#startBtn").onclick=()=>session(shuffle(due).slice(0,15),un.slice(0,nNew));
   $("#bonusBtn").onclick=()=>session(shuffle(SKILLS.filter(s=>learned(s.k)).map(s=>s.k)).slice(0,5),[],true);
   const x=$("#extraBtn");if(x)x.onclick=()=>session([],un.slice(0,1));const c=$("#chkBtn");if(c)c.onclick=()=>unitCheck(nc[0])}
@@ -404,85 +449,145 @@ function session(dueKeys,newKeys,bonus){inQuiz=true;const queue=[];
   let i=0,q=0,ok=0,combo=0,wrongs=[];
   const step=()=>{if(i>=queue.length)return finish();const it=queue[i];const pct=Math.round(i/queue.length*100);const s=SKILLS[IDX[it.k]];
     if(it.kind==="learn"){if(ws(it.k).b===0){S.w[it.k]={b:1,d:Date.now()+DAY,l:0,c:0};logHist("nw",1);save()}
-      main.innerHTML=`<div class="prog"><i style="width:${pct}%"></i></div><div class="wcard">${learnCard(it.k)}</div><button class="btn" style="margin-top:12px" id="nx">Got it — let me try</button>`;$("#nx").onclick=()=>{i++;addXP(5);step()};return}
-    const Q=s.gen();
-    main.innerHTML=`<div class="prog"><i style="width:${pct}%"></i></div><p class="muted">${bonus?"Bonus":it.isNew?"New skill":it.retry?"Similar problem":"Review"} · ${i+1}/${queue.length} · ${esc(s.name)} ${combo>=3?`· 🔥 ${combo}`:""}</p>
+      main.innerHTML=`<div class="prog"><i style="width:${pct}%"></i></div><div class="wcard">${learnCard(it.k)}</div><button class="btn" style="margin-top:12px" id="nx">${L("Got it — let me try","了解，我來試試")}</button>`;$("#nx").onclick=()=>{i++;addXP(5);step()};return}
+    const Q=s.gen();const lab=bonus?L("Bonus","加分題"):it.isNew?L("New skill","新技能"):it.retry?L("Similar problem","類似題"):L("Review","複習");
+    main.innerHTML=`<div class="prog"><i style="width:${pct}%"></i></div><p class="muted">${lab} · ${i+1}/${queue.length} · ${esc(nm(s))} ${combo>=3?`· 🔥 ${combo}`:""}</p>
       <div class="wcard q"><p class="qtext">${esc(Q.text)}</p></div>${keypadHTML()}<div id="fb"></div>`;
     bindKeypad(v=>{kpHandler=null;const right=sameAns(v,Q.ans);q++;logHist("q",1);
       if(!it.retry&&!bonus&&!(it.second&&right))grade(it.k,right);
       if(right){ok++;combo++;logHist("ok",1);addXP(bonus?6:10+(combo>=4?5:0));$("#ans").classList.add("ok");
-        $("#fb").innerHTML=`<div class="fb"><b>Right.</b> <span class="muted">${esc(Q.sol)}</span></div><button class="btn" style="margin-top:10px" id="nx">Next</button>`;$("#nx").onclick=()=>{i++;step()}}
+        $("#fb").innerHTML=`<div class="fb"><b>${L("Right.","答對了！")}</b> <span class="muted">${esc(Q.sol)}</span></div><button class="btn" style="margin-top:10px" id="nx">${L("Next","下一題")}</button>`;$("#nx").onclick=()=>{i++;step()}}
       else{combo=0;wrongs.push(it.k);addXP(2);$("#ans").classList.add("bad");
-        $("#fb").innerHTML=`<div class="fb bad"><b>Answer: ${esc(fs(Q.ans))}</b><br>${esc(Q.sol)}<div class="hint" style="margin-top:8px">💡 ${esc(s.idea)}</div></div><button class="btn" style="margin-top:10px" id="nx">Try a similar one</button>`;
+        $("#fb").innerHTML=`<div class="fb bad"><b>${L("Answer","答案")}: ${esc(showAns(Q.ans))}</b><br>${esc(Q.sol)}<div class="hint" style="margin-top:8px">💡 ${esc(idea(s))}</div></div><button class="btn" style="margin-top:10px" id="nx">${L("Try a similar one","再做一題類似的")}</button>`;
         $("#nx").onclick=()=>{queue.splice(i+1,0,{kind:"q",k:it.k,retry:true});i++;step()}}
       save()})};
   const finish=()=>{inQuiz=false;touchStreak();addBadge("first");if(q>=8&&ok===q)addBadge("perfect");checkBadges();save();report();
     const acc=q?Math.round(ok/q*100):100;
-    main.innerHTML=`<div class="rink"><h1>Full time</h1><div class="stat"><span>Questions</span><span class="v">${q}</span></div><div class="stat"><span>Accuracy</span><span class="v">${acc}%</span></div><div class="stat"><span>Streak</span><span class="v">🔥 ${S.streak}</span></div>
-    ${wrongs.length?`<div class="blueline"><h3>Coming back tomorrow</h3>${[...new Set(wrongs)].map(k=>`<div class="wl"><b>${esc(SKILLS[IDX[k]].name)}</b><span class="muted">${esc(unitOf(k)[2])}</span></div>`).join("")}</div>`:`<p style="margin-top:14px">Clean sheet. 🧤</p>`}
-    <button class="btn" style="margin-top:16px" id="home">Back to Today</button></div>`;$("#home").onclick=()=>{tab="today";render()}};
+    main.innerHTML=`<div class="rink"><h1>${L(...CFG.finishTitle)}</h1><div class="stat"><span>${L("Questions","題數")}</span><span class="v">${q}</span></div><div class="stat"><span>${L("Accuracy","正確率")}</span><span class="v">${acc}%</span></div><div class="stat"><span>${L("Streak","連續天數")}</span><span class="v">🔥 ${S.streak}</span></div>
+    ${wrongs.length?`<div class="blueline"><h3>${L("Coming back tomorrow","明天再複習")}</h3>${[...new Set(wrongs)].map(k=>`<div class="wl"><b>${esc(nm(SKILLS[IDX[k]]))}</b><span class="muted">${esc(unitOf(k)[2])}</span></div>`).join("")}</div>`:`<p style="margin-top:14px">${L(...CFG.perfectLine)}</p>`}
+    <button class="btn" style="margin-top:16px" id="home">${L("Back to Today","回到今天")}</button></div>`;$("#home").onclick=()=>{tab="today";render()}};
   step()}
 
 // ---------- unit check ----------
 function unitCheck(u){inQuiz=true;const unit=UNITS.find(x=>x[0]===u);const keys=SKILLS.filter(s=>s.u===u).map(s=>s.k);let i=0;const res=[];
   const end=()=>{inQuiz=false;addBadge("checked");save();const good=res.filter(r=>r.ok).length;
-    main.innerHTML=`<div class="rink"><h1>Check done: ${esc(unit[1])}</h1><p class="muted">${esc(unit[2])} · ${esc(unit[3])}</p><p style="font-size:19px">${good} of ${res.length} right.</p>
-    ${res.map(r=>`<div class="wl"><b>${esc(SKILLS[IDX[r.k]].name)}</b><span class="pill ${r.ok?"b4":"due"}">${r.ok?"known":r.skip?"skipped":"to learn"}</span></div>`).join("")}
-    <p class="muted" style="margin-top:10px">Known skills still come back for review in a week. The rest are added to your daily sessions.</p><button class="btn" style="margin-top:12px" id="home">Back to Today</button></div>`;$("#home").onclick=()=>{tab="today";render()}};
+    main.innerHTML=`<div class="rink"><h1>${L("Check done","檢測完成")}: ${esc(unitName(unit))}</h1><p class="muted">${esc(unit[2])} · ${esc(unit[3])}</p><p style="font-size:19px">${L(`${good} of ${res.length} right.`,`${res.length} 題答對 ${good} 題。`)}</p>
+    ${res.map(r=>`<div class="wl"><b>${esc(nm(SKILLS[IDX[r.k]]))}</b><span class="pill ${r.ok?"b4":"due"}">${r.ok?L("known","已會"):r.skip?L("skipped","跳過"):L("to learn","要學")}</span></div>`).join("")}
+    <p class="muted" style="margin-top:10px">${L("Known skills still come back for review in a week. The rest are added to your daily sessions.","已會的技能一週後還會再複習一次確認，其餘的會排進每天的練習。")}</p><button class="btn" style="margin-top:12px" id="home">${L("Back to Today","回到今天")}</button></div>`;$("#home").onclick=()=>{tab="today";render()}};
   const step=()=>{if(i>=keys.length)return end();const k=keys[i],s=SKILLS[IDX[k]],Q=s.gen();
-    main.innerHTML=`<div class="prog"><i style="width:${Math.round(i/keys.length*100)}%"></i></div><p class="muted">Unit check · ${esc(unit[1])} · ${i+1}/${keys.length}</p><div class="wcard q"><p class="qtext">${esc(Q.text)}</p></div>${keypadHTML()}<div class="row" style="margin-top:6px"><button class="btn ghost sm" id="skip">I haven't learned this</button><button class="btn ghost sm" id="stop">Stop for now</button></div>`;
+    main.innerHTML=`<div class="prog"><i style="width:${Math.round(i/keys.length*100)}%"></i></div><p class="muted">${L("Unit check","單元檢測")} · ${esc(unitName(unit))} · ${i+1}/${keys.length}</p><div class="wcard q"><p class="qtext">${esc(Q.text)}</p></div>${keypadHTML()}<div class="row" style="margin-top:6px"><button class="btn ghost sm" id="skip">${L("I haven't learned this","還沒學過")}</button><button class="btn ghost sm" id="stop">${L("Stop for now","先停在這裡")}</button></div>`;
     const mark=(ok,skip)=>{S.check[k]={ok,d:todayKey()};if(ok&&ws(k).b===0)S.w[k]={b:3,d:Date.now()+7*DAY,l:0,c:1};res.push({k,ok,skip});save();i++;step()};
     bindKeypad(v=>{kpHandler=null;mark(sameAns(v,Q.ans),false)});$("#skip").onclick=()=>{kpHandler=null;mark(false,true)};$("#stop").onclick=()=>{kpHandler=null;end()}};
   step()}
 
 // ---------- skills tab ----------
 function rSkills(){const now=Date.now();
-  main.innerHTML=`<h1>Skills</h1><p class="muted">Mapped to Taiwan's 108 curriculum for Grade 6. Tap a unit for details or to run its check.</p>${UNITS.map(u=>{const its=SKILLS.filter(s=>s.u===u[0]);const m=its.filter(s=>mastered(s.k)).length,l=its.filter(s=>learned(s.k)).length;
-    return `<button class="unit" data-u="${u[0]}"><div class="row" style="justify-content:space-between;width:100%;align-items:baseline"><span><b>${esc(u[1])}</b> <span class="muted">${esc(u[2])}</span></span><span class="muted">${esc(u[3])} · ${m}/${its.length}</span></div><div class="bar"><i style="width:${m/its.length*100}%"></i><i class="s" style="width:${(l-m)/its.length*100}%"></i></div></button>`}).join("")}<p class="kb">Dark = mastered · light = learning</p>`;
+  main.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center"><h1>${L("Skills","技能")}</h1>${langBtn()}</div><p class="muted">${L(CFG.skillsIntro[0],CFG.skillsIntro[1])}</p>${UNITS.map(u=>{const its=SKILLS.filter(s=>s.u===u[0]);const m=its.filter(s=>mastered(s.k)).length,l=its.filter(s=>learned(s.k)).length;
+    return `<button class="unit" data-u="${u[0]}"><div class="row" style="justify-content:space-between;width:100%;align-items:baseline"><span><b>${esc(unitName(u))}</b>${S.lang==="zh"?"":` <span class="muted">${esc(u[2])}</span>`}</span><span class="muted">${esc(u[3])} · ${m}/${its.length}</span></div><div class="bar"><i style="width:${m/its.length*100}%"></i><i class="s" style="width:${(l-m)/its.length*100}%"></i></div></button>`}).join("")}<p class="kb">${L("Dark = mastered · light = learning","深色 = 已熟練 · 淺色 = 學習中")}</p>`;
+  bindLang();
   document.querySelectorAll(".unit").forEach(b=>b.onclick=()=>{const u=UNITS.find(x=>x[0]===b.dataset.u);const its=SKILLS.filter(s=>s.u===u[0]);$("#modal").classList.remove("hidden");
-    $("#modal").innerHTML=`<div style="max-height:82vh;overflow:auto"><h2>${esc(u[1])}</h2><p class="muted">${esc(u[2])} · ${esc(u[3])}</p>${its.map(s=>{const x=ws(s.k),c=S.check[s.k];return `<div class="wl"><span><b>${esc(s.name)}</b>${c?` <span class="muted" style="font-size:13px">check: ${c.ok?"✓":"✗"}</span>`:""}</span><span class="pill ${x.b>=4?"b4":x.b>0&&x.d<=now?"due":""}">${x.b===0?"new":x.b>=4?"mastered":x.d<=now?"due":"box "+x.b}${x.l?` · ${x.l} miss`:""}</span></div>`}).join("")}
-    <div class="row" style="margin-top:12px"><button class="btn gold sm" id="uc">Run unit check</button><button class="btn ghost sm" id="cl">Close</button></div></div>`;
+    $("#modal").innerHTML=`<div style="max-height:82vh;overflow:auto"><h2>${esc(unitName(u))}</h2><p class="muted">${esc(u[2])} · ${esc(u[3])}</p>${its.map(s=>{const x=ws(s.k),c=S.check[s.k];return `<div class="wl"><span><b>${esc(nm(s))}</b>${c?` <span class="muted" style="font-size:13px">${L("check","檢測")}: ${c.ok?"✓":"✗"}</span>`:""}</span><span class="pill ${x.b>=4?"b4":x.b>0&&x.d<=now?"due":""}">${x.b===0?L("new","未學"):x.b>=4?L("mastered","已熟練"):x.d<=now?L("due","待複習"):L("box ","第 ")+x.b+L(""," 級")}${x.l?` · ${x.l} ${L("miss","次錯")}`:""}</span></div>`}).join("")}
+    <div class="row" style="margin-top:12px"><button class="btn gold sm" id="uc">${L("Run unit check","進行單元檢測")}</button><button class="btn ghost sm" id="cl">${L("Close","關閉")}</button></div></div>`;
     $("#cl").onclick=()=>$("#modal").classList.add("hidden");$("#uc").onclick=()=>{$("#modal").classList.add("hidden");unitCheck(u[0])}})}
 
 // ---------- plan ----------
-function rPlan(){const pc=pace();const s1=semSkills("上"),s2=semSkills("下");const l1=s1.filter(s=>learned(s.k)).length,l2=s2.filter(s=>learned(s.k)).length;
-  main.innerHTML=`<h1>Game plan</h1><p class="muted">Target: Taiwan Grade 6 (六年級, 108 curriculum). Goal date ${S.goal} · ${pc.d} days · ${pc.left} skills not yet learned.</p>
-  <div class="phase now"><div class="w">Now</div><div><b>Unit checks first.</b> Run the check for each unit (Today shows the next one). It shows which Grade 6 skills are already solid and which are gaps.</div></div>
-  <div class="phase"><div class="w">五年級 + 六上</div><div><b>${l1}/${s1.length} learned.</b> Grade 5 foundations, factors and multiples (質因數、公因數與公倍數), dividing fractions and decimals, ratios (比與比值), circles (圓周長與圓面積). Taught September to January in Taiwan, so they matter most right now.</div></div>
-  <div class="phase"><div class="w">六下</div><div><b>${l2}/${s2.length} learned.</b> Proportion and map scale (正比與比例尺), speed (速率), prisms and cylinders (柱體), letters for numbers (用文字符號表示數), circle graphs (圓形圖). Taught February to June.</div></div>
-  <div class="phase"><div class="w">Daily</div><div>One session, 6 days a week, about 10 minutes: due reviews first, then ${S.perDay} new skill${S.perDay===1?"":"s"}. ${pc.rec>S.perDay?`To finish all skills two weeks before the goal date, about ${pc.rec} new per day is needed.`:""}</div></div>
-  <div class="blueline"><h3>Good to know</h3><p class="muted" style="font-size:15px">Taiwanese publishers (康軒, 南一, 翰林) order a few Grade 6 units differently, so the 六上 / 六下 split here is approximate. The app drills the core calculation of each topic; once a unit is mastered, the matching chapter of a Taiwanese Grade 6 workbook is a good next step for longer word problems.</p></div>`}
+function rPlan(){const pc=pace();const s1=semSkills(1),s2=semSkills(2);const l1=s1.filter(s=>learned(s.k)).length,l2=s2.filter(s=>learned(s.k)).length;
+  main.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center"><h1>${L("Plan","計畫")}</h1>${langBtn()}</div>`+CFG.plan({pc,s1,s2,l1,l2});bindLang()}
 
 // ---------- stats ----------
 function rStats(){const days=[];for(let k=6;k>=0;k--){const key=todayKey(new Date(Date.now()-k*DAY));days.push({key,h:S.hist[key]})}
   const tricky=SKILLS.filter(s=>ws(s.k).l>0).sort((a,b)=>ws(b.k).l-ws(a.k).l).slice(0,8);
   const gaps=SKILLS.filter(s=>S.check[s.k]&&!S.check[s.k].ok);
-  main.innerHTML=`<h1>Stats</h1><div class="stat"><span>Skills mastered</span><span class="v">${masteredCount()} / ${SKILLS.length}</span></div><div class="stat"><span>Skills learned</span><span class="v">${SKILLS.filter(s=>learned(s.k)).length}</span></div><div class="stat"><span>Best streak</span><span class="v">${S.best}</span></div><div class="stat"><span>Total XP</span><span class="v">${S.xp}</span></div>
-  ${gaps.length?`<div class="blueline"><h3>Gaps found in unit checks</h3>${gaps.map(s=>`<div class="wl"><b>${esc(s.name)}</b><span class="muted">${esc(UNITS.find(u=>u[0]===s.u)[2])} · ${mastered(s.k)?"now mastered ✓":learned(s.k)?"learning":"not started"}</span></div>`).join("")}</div>`:""}
-  <div class="blueline"><h3>Last 7 days</h3>${days.map(x=>`<div class="stat"><span>${x.key.slice(5)}</span><span>${x.h?`${x.h.q||0} questions · ${x.h.q?Math.round((x.h.ok||0)/x.h.q*100):0}% · +${x.h.xp||0} XP`:"<span class='muted'>—</span>"}</span></div>`).join("")}</div>
-  ${tricky.length?`<div class="blueline"><h3>Trickiest so far</h3>${tricky.map(s=>`<div class="wl"><b>${esc(s.name)}</b><span class="muted">${ws(s.k).l} misses</span></div>`).join("")}</div>`:""}
-  <div class="blueline"><h3>Badges</h3><div class="badges">${BADGES.map(b=>`<div class="badge ${S.badges.includes(b[0])?"got":""}"><div class="e">${b[2]}</div><b>${b[1]}</b><div class="muted">${b[3]}</div></div>`).join("")}</div></div>`}
+  main.innerHTML=`<div class="row" style="justify-content:space-between;align-items:center"><h1>${L("Stats","統計")}</h1>${langBtn()}</div><div class="stat"><span>${L("Skills mastered","已熟練技能")}</span><span class="v">${masteredCount()} / ${SKILLS.length}</span></div><div class="stat"><span>${L("Skills learned","已學技能")}</span><span class="v">${SKILLS.filter(s=>learned(s.k)).length}</span></div><div class="stat"><span>${L("Best streak","最長連續天數")}</span><span class="v">${S.best}</span></div><div class="stat"><span>${L("Total XP","總經驗值")}</span><span class="v">${S.xp}</span></div>
+  ${gaps.length?`<div class="blueline"><h3>${L("Gaps found in unit checks","單元檢測找到的缺口")}</h3>${gaps.map(s=>`<div class="wl"><b>${esc(nm(s))}</b><span class="muted">${esc(UNITS.find(u=>u[0]===s.u)[2])} · ${mastered(s.k)?L("now mastered ✓","已補上 ✓"):learned(s.k)?L("learning","學習中"):L("not started","尚未開始")}</span></div>`).join("")}</div>`:""}
+  <div class="blueline"><h3>${L("Last 7 days","最近 7 天")}</h3>${days.map(x=>`<div class="stat"><span>${x.key.slice(5)}</span><span>${x.h?L(`${x.h.q||0} questions · ${x.h.q?Math.round((x.h.ok||0)/x.h.q*100):0}% · +${x.h.xp||0} XP`,`${x.h.q||0} 題 · ${x.h.q?Math.round((x.h.ok||0)/x.h.q*100):0}% · +${x.h.xp||0} XP`):"<span class='muted'>—</span>"}</span></div>`).join("")}</div>
+  ${tricky.length?`<div class="blueline"><h3>${L("Trickiest so far","目前最常錯")}</h3>${tricky.map(s=>`<div class="wl"><b>${esc(nm(s))}</b><span class="muted">${ws(s.k).l} ${L("misses","次錯")}</span></div>`).join("")}</div>`:""}
+  <div class="blueline"><h3>${L("Badges","徽章")}</h3><div class="badges">${BADGES.map(b=>`<div class="badge ${S.badges.includes(b[0])?"got":""}"><div class="e">${b[3]}</div><b>${bName(b)}</b><div class="muted">${L(b[4],b[5])}</div></div>`).join("")}</div></div>`;bindLang()}
 
 // ---------- settings ----------
 function rSettings(){const pc=pace();
-  main.innerHTML=`<h1>Setup</h1><label class="f">Name</label><input id="nm" value="${esc(S.name)}">
-  <label class="f">Goal date</label><input id="gd" type="date" value="${S.goal}">
-  <label class="f">New skills per day (suggested now: ${pc.rec})</label><input id="pd" type="number" min="1" max="6" value="${S.perDay}">
-  <button class="btn" style="margin-top:16px" id="sv">Save setup</button>
-  <div class="blueline"><h3>Parent report</h3><p class="muted" style="font-size:14px">Paste the Google Apps Script web-app URL. After each session the app sends a one-line summary and a backup to that sheet.</p><input id="ru" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(S.reportUrl||"")}"><div class="row" style="margin-top:8px"><button class="btn ghost sm" id="rt">Send a test report</button></div></div>
-  <div class="blueline"><h3>Backup</h3><div class="row"><button class="btn ghost sm" id="exp">Export progress</button><button class="btn ghost sm" id="imp">Import progress</button></div><textarea id="bk" style="width:100%;height:80px;margin-top:8px;font:13px monospace;border:2px solid var(--line);border-radius:8px;background:var(--ice2);color:var(--ink)" placeholder="Progress code appears here / paste a code here"></textarea></div>
-  <div class="note">Progress is saved on this device. App version ${APP_VERSION}.</div>
-  <div class="rink"><button class="btn ghost" id="rs">Reset all progress</button></div>`;
-  $("#sv").onclick=()=>{S.name=$("#nm").value.trim();S.goal=$("#gd").value||S.goal;S.perDay=Math.max(1,Math.min(6,+$("#pd").value||2));S.reportUrl=$("#ru").value.trim();save();toast("Saved");tab="today";render()};
-  $("#rt").onclick=()=>{S.reportUrl=$("#ru").value.trim();save();if(!S.reportUrl){alert("Paste a URL first.");return}report();toast("Sent — check the sheet")};
-  $("#exp").onclick=()=>{$("#bk").value=btoa(unescape(encodeURIComponent(JSON.stringify(S))));$("#bk").select();try{navigator.clipboard.writeText($("#bk").value);toast("Copied")}catch(e){}};
-  $("#imp").onclick=()=>{try{const o=JSON.parse(decodeURIComponent(escape(atob($("#bk").value.trim()))));if(!o.w)throw 0;if(confirm("Replace current progress with this code?")){S=Object.assign(fresh(),o);save();toast("Imported");tab="today";render()}}catch(e){alert("That code is not valid.")}};
-  $("#rs").onclick=()=>{if(confirm("Reset everything? This cannot be undone.")){const nm=S.name,g=S.goal,ru=S.reportUrl;S=fresh();S.name=nm;S.goal=g;S.reportUrl=ru;save();render()}}}
+  main.innerHTML=`<h1>${L("Setup","設定")}</h1>
+  <label class="f">${L("Language","語言")}</label><div class="chips"><button class="chip lgs ${S.lang!=="zh"?"on":""}" data-l="en">English</button><button class="chip lgs ${S.lang==="zh"?"on":""}" data-l="zh">中文</button></div>
+  <label class="f">${L("Name","名字")}</label><input id="nm" value="${esc(S.name)}">
+  <label class="f">${L("Goal date","目標日期")}</label><input id="gd" type="date" value="${S.goal}">
+  <label class="f">${L(`New skills per day (suggested now: ${pc.rec})`,`每天新技能數（目前建議：${pc.rec}）`)}</label><input id="pd" type="number" min="1" max="6" value="${S.perDay}">
+  <button class="btn" style="margin-top:16px" id="sv">${L("Save setup","儲存設定")}</button>
+  <div class="blueline"><h3>${L("Parent report","家長報告")}</h3><p class="muted" style="font-size:14px">${L("Paste the Google Apps Script web-app URL. After each session the app sends a one-line summary and a backup to that sheet.","貼上 Google Apps Script 網頁應用程式的網址。每次練習完，App 會把一列摘要和備份送到試算表。")}</p>
+  <input id="ru" placeholder="https://script.google.com/macros/s/.../exec" value="${esc(S.reportUrl||"")}">
+  <label class="f" style="font-size:14px">${L("Sheet password (optional)","試算表密碼（選填）")}</label><input id="tk" value="${esc(S.token||"")}" placeholder="${L("Only if you set one in the Apps Script","只有在 Apps Script 有設定時才需要")}">
+  <div class="row" style="margin-top:8px"><button class="btn ghost sm" id="rt">${L("Send a test report","送出測試報告")}</button><button class="btn ghost sm" id="rf">${L("Restore from sheet","從試算表還原")}</button><button class="btn ghost sm" id="sn">${L("Sync now","立即同步")}</button></div><p class="kb" style="margin-top:8px"><b>${L("Sync across devices","跨裝置同步")}:</b> <span id="syncSt"></span></p><div></div></div>
+  <div class="blueline"><h3>${L("Backup","備份")}</h3><div class="row"><button class="btn ghost sm" id="exp">${L("Export progress","匯出進度")}</button><button class="btn ghost sm" id="imp">${L("Import progress","匯入進度")}</button></div><textarea id="bk" style="width:100%;height:80px;margin-top:8px;font:13px monospace;border:2px solid var(--line);border-radius:8px;background:var(--ice2);color:var(--ink)" placeholder="${L("Progress code appears here / paste a code here","進度碼會顯示在這裡／也可以貼上進度碼")}"></textarea></div>
+  <div class="note">${L("Progress is saved on this device.","進度儲存在這台裝置上。")} ${L("App version","版本")} ${APP_VERSION}.</div>
+  <div class="rink"><button class="btn ghost" id="rs">${L("Reset all progress","重設所有進度")}</button></div>`;
+  document.querySelectorAll(".chip.lgs").forEach(c=>c.onclick=()=>{S.lang=c.dataset.l;save();render()});
+  const grab=()=>{S.name=$("#nm").value.trim();S.goal=$("#gd").value||S.goal;S.perDay=Math.max(1,Math.min(6,+$("#pd").value||2));S.reportUrl=$("#ru").value.trim();S.token=$("#tk").value.trim()};
+  $("#sv").onclick=()=>{grab();save();toast(L("Saved","已儲存"));tab="today";render()};
+  $("#rt").onclick=()=>{grab();save();if(!S.reportUrl){alert(L("Paste a URL first.","請先貼上網址。"));return}report();toast(L("Sent — check the sheet","已送出，請查看試算表"))};
+  $("#rf").onclick=restoreFromSheet;$("#sn").onclick=()=>{const u=document.getElementById("ru"),t=document.getElementById("tk"),nmEl=document.getElementById("nm");if(u)S.reportUrl=u.value.trim();if(t)S.token=t.value.trim();if(nmEl&&nmEl.value.trim())S.name=nmEl.value.trim();save();syncNow(true,true)};showSync();
+  $("#exp").onclick=()=>{$("#bk").value=packState(S);$("#bk").select();try{navigator.clipboard.writeText($("#bk").value);toast(L("Copied","已複製"))}catch(e){}};
+  $("#imp").onclick=()=>{try{const o=unpackState($("#bk").value);if(confirm(L("Replace current progress with this code?","要用這組進度碼取代目前的進度嗎？"))){S=Object.assign(fresh(),o);save();toast(L("Imported","已匯入"));tab="today";render()}}catch(e){alert(L("That code is not valid.","這組進度碼無效。"))}};
+  $("#rs").onclick=()=>{if(confirm(L("Reset everything? This cannot be undone.","確定要重設全部進度？這個動作無法復原。"))){const keep={name:S.name,goal:S.goal,reportUrl:S.reportUrl,token:S.token,lang:S.lang};S=Object.assign(fresh(),keep);S.epoch=Date.now();save();render()}}}
 
 // ---------- boot ----------
 load();render();if(S.pending&&navigator.onLine)report();
-if(!S.name){$("#modal").classList.remove("hidden");$("#modal").innerHTML=`<div><h2>Welcome to Math Pitch</h2><p class="muted">Short daily practice on every Grade 6 math skill in Taiwan's curriculum. Start with the unit checks so practice goes only where it's needed.</p><label class="f">Your name</label><input id="n0" placeholder="Your name"><label class="f">Goal date</label><input id="g0" type="date" value="${S.goal}"><button class="btn" style="margin-top:14px" id="go">Kick off</button></div>`;
-  $("#go").onclick=()=>{S.name=$("#n0").value.trim()||"Student";S.goal=$("#g0").value||S.goal;save();$("#modal").classList.add("hidden");render()}}
+if(!S.name){$("#modal").classList.remove("hidden");
+  const welcome=()=>{$("#modal").innerHTML=`<div><div class="row" style="justify-content:space-between;align-items:center"><h2>${L(CFG.welcome[0],CFG.welcome[1])}</h2>${langBtn()}</div><p class="muted">${L(CFG.welcome[2],CFG.welcome[3])}</p><label class="f">${L("Your name","你的名字")}</label><input id="n0" placeholder="${L("Your name","你的名字")}"><label class="f">${L("Goal date","目標日期")}</label><input id="g0" type="date" value="${S.goal}"><button class="btn" style="margin-top:14px" id="go">${L(CFG.goBtn[0],CFG.goBtn[1])}</button><p class="kb" style="margin-top:10px">${L("Already used this app on another device? After starting, go to Setup → Restore from sheet.","之前在別的裝置用過？開始後到「設定 → 從試算表還原」。")}</p></div>`;
+    $("#lgBtn").onclick=()=>{S.lang=S.lang==="zh"?"en":"zh";render();welcome()};
+    $("#go").onclick=()=>{S.name=$("#n0").value.trim()||L("Student","同學");S.goal=$("#g0").value||S.goal;save();$("#modal").classList.add("hidden");render()}};
+  welcome()}
+
+// ---------- automatic sync across devices (through the same Apps Script) ----------
+// Merge two packed progress states. Same code runs in the apps and in the Apps Script.
+// Per item: keep the record with more attempts (right + wrong); attempts only ever go up, so nothing learned is lost.
+// Settings: newer device wins. XP / best streak: max. Badges: union. Daily history: max per field.
+// A reset bumps "epoch"; a newer epoch replaces everything older.
+function mergePacked(a,b){if(!a)return b;if(!b)return a;
+  if((a.epoch||0)!==(b.epoch||0))return (a.epoch||0)>(b.epoch||0)?a:b;
+  var newer=(a.updated||0)>=(b.updated||0)?a:b,older=newer===a?b:a,o={},k;
+  for(k in older)o[k]=older[k];for(k in newer)o[k]=newer[k];
+  var m={};function put(r){var c=m[r[0]];if(!c){m[r[0]]=r;return}var ta=(c[3]||0)+(c[4]||0),tb=(r[3]||0)+(r[4]||0);if(tb>ta||(tb===ta&&(r[2]||0)>(c[2]||0)))m[r[0]]=r}
+  (older.W||[]).forEach(put);(newer.W||[]).forEach(put);o.W=Object.keys(m).map(function(x){return m[x]});
+  o.xp=Math.max(a.xp||0,b.xp||0);o.best=Math.max(a.best||0,b.best||0);
+  var st=(a.last||"")>=(b.last||"")?a:b;o.streak=st.streak||0;o.last=st.last||"";o.freezeUsed=st.freezeUsed||"";
+  var bs={};(a.badges||[]).concat(b.badges||[]).forEach(function(x){bs[x]=1});o.badges=Object.keys(bs);
+  o.hist={};[a.hist||{},b.hist||{}].forEach(function(h){Object.keys(h).forEach(function(d){var x=o.hist[d]||(o.hist[d]={});Object.keys(h[d]).forEach(function(f){x[f]=Math.max(x[f]||0,h[d][f]||0)})})});
+  if(a.check||b.check){o.check={};var ca=older.check||{},cb=newer.check||{};for(k in ca)o.check[k]=ca[k];for(k in cb)o.check[k]=cb[k]}
+  if(a.placed||b.placed)o.placed=true;
+  o.ik=(a.ik==="n"||b.ik==="n")?"n":(newer.ik||older.ik||"s");
+  o.updated=Math.max(a.updated||0,b.updated||0);return o}
+
+let syncBusy=false,lastSync=0,lastPush=0,syncErr=false;
+const appBusy=()=>(typeof inQuiz!=="undefined"&&inQuiz)||!!document.querySelector(".opt:not([disabled]),.kp");
+const decP=s=>JSON.parse(decodeURIComponent(escape(atob(String(s).slice(3)))));
+const encP=o=>"z1."+btoa(unescape(encodeURIComponent(JSON.stringify(o))));
+const LOCAL_ONLY=["reportUrl","token","pending"];
+function cleanForSync(o){o=Object.assign({},o);LOCAL_ONLY.forEach(k=>delete o[k]);let s=encP(o);if(s.length>48000){o.hist={};s=encP(o)}return s}
+function syncReady(){return !!(S.reportUrl&&S.name)}
+function syncStatus(){if(!syncReady())return _T("Off — add the sheet URL and your name to turn it on","未開啟：填入試算表網址和名字後就會自動同步");
+  return syncErr?_T("Last sync failed — will retry","上次同步失敗，稍後會自動重試"):lastSync?_T("On · last synced ","已開啟 · 上次同步 ")+new Date(lastSync).toLocaleTimeString([],{hour:"2-digit",minute:"2-digit"}):_T("On · waiting for first sync","已開啟 · 等待第一次同步")}
+function showSync(){const e=document.getElementById("syncSt");if(e)e.textContent=syncStatus()}
+function pushState(packedObj){if(!syncReady())return;lastPush=Date.now();
+  try{fetch(S.reportUrl,{method:"POST",mode:"no-cors",keepalive:true,headers:{"Content-Type":"text/plain"},
+    body:JSON.stringify({op:"sync",app:APPID,name:S.name,token:S.token||"",state:cleanForSync(packedObj||decP(packState(S)))})}).catch(()=>{})}catch(e){}}
+async function syncNow(push,manual){if(!syncReady()){if(manual)toast(_T("Add the sheet URL and your name first","請先填入試算表網址和名字"));return}
+  if(syncBusy||!navigator.onLine){if(manual&&!navigator.onLine)toast(_T("Offline — will sync later","目前離線，之後會自動同步"));return}
+  syncBusy=true;try{
+    const u=S.reportUrl+(S.reportUrl.includes("?")?"&":"?")+"op=pull&name="+encodeURIComponent(S.name)+"&app="+APPID+(S.token?"&token="+encodeURIComponent(S.token):"");
+    const j=await (await fetch(u)).json();if(j.error)throw new Error(j.error);
+    const local=decP(packState(S));let merged=local;
+    if(j.found&&j.state){const remote=decP(j.state);if(!remote.app||remote.app===APPID)merged=mergePacked(local,remote)}
+    const changed=JSON.stringify(merged.W)!==JSON.stringify(local.W)||merged.xp!==local.xp||merged.epoch!==local.epoch||merged.updated!==local.updated;
+    if(changed&&!appBusy()){const keep={};LOCAL_ONLY.forEach(k=>keep[k]=S[k]);S=Object.assign(fresh(),unpackState(encP(merged)),keep);
+      try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}if(typeof render==="function")render()}
+    if(push||changed||!j.found)pushState(merged);
+    lastSync=Date.now();syncErr=false;if(manual)toast(_T("Synced","已同步"))}
+  catch(e){syncErr=true;if(manual)toast(_T("Sync failed — check the URL and that the Apps Script is updated","同步失敗：請確認網址正確，以及 Apps Script 已更新並重新部署"))}
+  finally{syncBusy=false;showSync()}}
+{const _rep=report;report=function(){_rep();setTimeout(()=>syncNow(true),400)}}
+window.addEventListener("load",()=>setTimeout(()=>syncNow(true),800));
+document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")syncNow(false);else if(syncReady()&&(S.updated||0)>lastPush)pushState()});
+window.addEventListener("online",()=>syncNow(true));
+setInterval(()=>{if(document.visibilityState!=="visible")return;if(!lastSync||Date.now()-lastSync>5*60000)syncNow(false);else if((S.updated||0)>lastPush&&!appBusy())pushState()},45000);
 
 if("serviceWorker" in navigator){navigator.serviceWorker.register("sw.js",{updateViaCache:"none"}).then(r=>{document.addEventListener("visibilitychange",()=>{if(document.visibilityState==="visible")r.update().catch(()=>{})})}).catch(()=>{});let reloaded=false;navigator.serviceWorker.addEventListener("controllerchange",()=>{if(reloaded||inQuiz)return;reloaded=true;location.reload()})}
 </script>

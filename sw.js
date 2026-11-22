@@ -1,5 +1,5 @@
 // mathpitch service worker — bump VERSION on every release
-const VERSION="mathpitch-2026-11-10a";
+const VERSION="mathpitch-2026-11-21a";
 const CORE=["./","./index.html","./manifest.json","./icon-192.png","./icon-512.png"];
 const AUDIO="mathpitch-audio"; // kept across releases so the audio pack isn't re-downloaded
 self.addEventListener("install",e=>{e.waitUntil(caches.open(VERSION).then(c=>Promise.all(CORE.map(u=>fetch(u,{cache:"reload"}).then(r=>{if(r.ok)return c.put(u,r)}).catch(()=>{})))).then(()=>self.skipWaiting()))});
